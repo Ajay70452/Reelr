@@ -64,14 +64,14 @@ We use **RQ** (Redis Queue) for simplicity and reliability.
 
 - MOST EXPENSIVE
 - Requires GPUs
-- Runs SORA / MiniSora / AnimateDiff / Runway
+- Runs Kling 2.6 / Sora / AnimateDiff / Runway
 
 Must be isolated from CPU jobs.
 
 Has two sub-queues:
 
 ```
-visual_sora_queue (GPU)
+visual_kling_queue (GPU)
 visual_motion_queue (GPU)
 ```
 
@@ -158,13 +158,13 @@ This is the HEART of the system.
 
 ---
 
-# **A) Sora Worker (GPU)**
+# **A) Kling Video Worker (GPU)**
 
-**Queue:** `visual_sora_queue`
+**Queue:** `visual_kling_queue`
 
 Responsibilities:
 
-- Generate video clips from scene prompts
+- Generate cinematic video clips from scene prompts using Kling 2.6
 - Produce 3–7 second video segments
 - Upload raw clips to S3
 
@@ -172,6 +172,7 @@ Responsibilities:
 
 - 24GB VRAM recommended
 - Modal / RunPod / EC2 g5.2xlarge
+- Optimized for Kling 2.6 API calls
 
 ### Concurrency:
 
@@ -191,14 +192,16 @@ Responsibilities:
 
 Handles:
 
-- AnimateDiff
-- Runway-like motion
+- Image generation via Flux 1.1 Pro
+- AnimateDiff for motion
+- Runway-like motion effects
 - Pika-style subtle animation
 
 ### GPU Requirements:
 
 - 8–16GB VRAM
-- Faster than SORA pipeline
+- Faster than Kling pipeline
+- Flux + AnimateDiff processing
 
 ### Time Limit:
 
@@ -376,7 +379,7 @@ Each worker enqueues the next stage after completing.
 
 ### **Fallback Logic (Most Important)**
 
-If **SORA worker fails twice**:
+If **Kling worker fails twice**:
 
 ```
 Switch job to Moving Images queue
@@ -437,8 +440,8 @@ Workers preload models to avoid cold starts.
 
 ### Phase 1 (MVP)
 
-- 1 GPU worker (Sora proxy)
-- 1 GPU worker (AnimateDiff)
+- 1 GPU worker (Kling 2.6 API)
+- 1 GPU worker (Flux + AnimateDiff)
 - 1–2 CPU render workers
 - 5–10 LLM workers
 - 1 finalize worker
@@ -452,7 +455,8 @@ Workers preload models to avoid cold starts.
 ### Phase 3
 
 - Multi-region worker pools
-- Dedicated Sora pipeline machines
+- Dedicated Kling pipeline machines
+- Optional: Sora API integration for premium tier
 - Worker health checks & autoscaling scripts
 
 ---
@@ -465,7 +469,7 @@ Your worker architecture is:
 - **GPU-aware**
 - **Fail-safe**
 - **Modular**
-- **Optimized for SORA and Motion models**
+- **Optimized for Kling 2.6 and Flux + AnimateDiff models**
 - **Aligned with real-world AI video SaaS engineering**
 
 This system will **not crash**, will keep you **cost-efficient**, and will give users a consistently stable experience.

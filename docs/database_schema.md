@@ -106,7 +106,7 @@ CREATE TABLE visual_styles (
 Example:
 
 - moving_images
-- sora_video
+- cinematic_video (Kling 2.6 / Sora premium)
 - stock_default (fallback system)
 
 ---
@@ -312,20 +312,20 @@ The schema explicitly supports:
 
 # 5️⃣ **SCHEMA SUMMARY**
 
-| Table           | Purpose                           |
-| --------------- | --------------------------------- |
-| users           | user accounts                     |
-| credits         | track balances                    |
-| genres          | Step 1 categories                 |
-| visual_styles   | Sora / Motion / Stock             |
-| presets         | cinematic, anime, aesthetic, etc. |
-| quality_options | basic / standard / premium        |
-| voices          | AI voice options                  |
-| music           | bgm                               |
-| video_jobs      | generation pipeline tracking      |
-| videos          | final rendered MP4s               |
-| billing_history | payments                          |
-| worker_logs     | errors + pipeline tracking        |
+| Table           | Purpose                                 |
+| --------------- | --------------------------------------- |
+| users           | user accounts                           |
+| credits         | track balances                          |
+| genres          | Step 1 categories                       |
+| visual_styles   | Cinematic Video / Moving Images / Stock |
+| presets         | cinematic, anime, aesthetic, etc.       |
+| quality_options | basic / standard / premium              |
+| voices          | AI voice options                        |
+| music           | bgm                                     |
+| video_jobs      | generation pipeline tracking            |
+| videos          | final rendered MP4s                     |
+| billing_history | payments                                |
+| worker_logs     | errors + pipeline tracking              |
 
 ---
 
@@ -335,7 +335,7 @@ This schema is:
 
 - **Minimal but complete**
 - **Perfect for an MVP**
-- **Supports Sora + Moving Images**
+- **Supports Kling 2.6 + Flux + Moving Images**
 - **Allows future scaling**
 - **Clear enough for any backend dev**
 - **Production-ready**

@@ -102,12 +102,13 @@ Optional:
 
 ### **Video Models**
 
-- **kling 2.6**
-- **Sora**
+- **Kling 2.6** (primary)
+- **Sora** (when API available)
 
 ### **Images**
 
-- **nano banana pro**
+- **Flux 1.1 Pro** (primary)
+- **Playground 2.9** (alternative)
 
 ### **TTS**
 
@@ -225,6 +226,6 @@ Optional:
 
 # ⭐ **Tech Stack Summary (One-Liner)**
 
-**Next.js + FastAPI + Redis Queue + Python Workers + FFmpeg + S3 + Postgres + Modal GPUs + GPT-4 + Motion/Sora models**
+**Next.js + FastAPI + Redis Queue + Python Workers + FFmpeg + S3 + Postgres + Modal GPUs + GPT-4 + Kling/Flux models**
 
 That’s your entire machine — the simplest, fastest, highest-leverage stack for AI video SaaS.

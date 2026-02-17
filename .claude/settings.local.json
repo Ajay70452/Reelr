@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(npm install:*)",
+      "Bash(npx next build)",
+      "Bash(ls -la \"f:\\\\Startups\\\\x\\\\ClipKing\\\\frontend\\\\src\\\\components\\\\ui\"\" && echo \"---\" && ls -la \"f:StartupsxClipKingfrontendsrccomponentswizard\"\")",
+      "Bash(dir:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:developers.deepgram.com)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(ffmpeg:*)",
+      "Bash(findstr:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

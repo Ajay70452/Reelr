@@ -1,0 +1,165 @@
+# ============================================
+# ClipKing - AI Video Generator Backend
+# Python 3.11+
+# ============================================
+
+# ============================================
+# Core Web Framework
+# ============================================
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# ============================================
+# Database & ORM
+# ============================================
+sqlalchemy==2.0.35
+asyncpg==0.29.0  # Async PostgreSQL driver
+psycopg2-binary==2.9.9  # Sync PostgreSQL driver (fallback)
+alembic==1.13.3  # Database migrations
+
+# ============================================
+# Authentication & Security
+# ============================================
+supabase==2.9.1  # Supabase client (Auth + DB + Storage)
+python-jose[cryptography]==3.3.0  # JWT tokens
+passlib[bcrypt]==1.7.4  # Password hashing
+python-dotenv==1.0.1  # Environment variables
+
+# ============================================
+# Job Queue & Workers
+# ============================================
+redis==5.2.0  # Redis client
+rq==1.16.2  # Redis Queue for async jobs
+rq-scheduler==0.13.1  # Scheduled jobs
+
+# ============================================
+# AI & Machine Learning
+# ============================================
+openai==1.54.0  # OpenAI GPT-4, TTS, DALL-E
+anthropic==0.39.0  # Claude API (backup LLM)
+elevenlabs==1.9.0  # ElevenLabs TTS
+replicate==1.0.1  # Replicate API (for Sora-like models, Kling)
+google-generativeai==0.8.3  # Google Gemini API (script enhancement)
+deepgram-sdk==3.7.0  # Deepgram TTS & STT
+
+# ============================================
+# Image & Video Processing
+# ============================================
+Pillow==11.0.0  # Image manipulation
+opencv-python==4.10.0.84  # Video processing
+ffmpeg-python==0.2.0  # FFmpeg wrapper (preferred over moviepy)
+# moviepy==1.0.3  # Alternative (NOT recommended - too slow)
+
+# ============================================
+# Cloud Storage & CDN
+# ============================================
+boto3==1.35.64  # AWS S3 SDK
+botocore==1.35.64  # AWS core utilities
+
+# ============================================
+# Payment Processing
+# ============================================
+stripe==11.2.0  # Stripe payments & subscriptions
+
+# ============================================
+# HTTP Client & Requests
+# ============================================
+httpx==0.27.2  # Async HTTP client
+requests==2.32.3  # Sync HTTP client (for external APIs)
+aiohttp==3.11.7  # Alternative async HTTP
+
+# ============================================
+# Data Validation & Serialization
+# ============================================
+pydantic[email]==2.9.2  # Email validation
+python-slugify==8.0.4  # URL-safe slugs
+
+# ============================================
+# Monitoring & Logging
+# ============================================
+sentry-sdk[fastapi]==2.18.0  # Error tracking
+loguru==0.7.2  # Better logging
+python-json-logger==3.1.0  # JSON structured logs
+
+# ============================================
+# Rate Limiting & Caching
+# ============================================
+slowapi==0.1.9  # Rate limiting for FastAPI
+python-redis-lock==4.0.0  # Distributed locks
+
+# ============================================
+# Task Scheduling
+# ============================================
+apscheduler==3.10.4  # Advanced task scheduling
+
+# ============================================
+# Utilities
+# ============================================
+python-dateutil==2.9.0  # Date/time utilities
+pytz==2024.2  # Timezone support
+validators==0.34.0  # Data validators
+tenacity==9.0.0  # Retry logic
+tqdm==4.67.1  # Progress bars
+
+# ============================================
+# File Handling
+# ============================================
+python-magic==0.4.27  # File type detection
+aiofiles==24.1.0  # Async file I/O
+
+# ============================================
+# Testing (Development)
+# ============================================
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+pytest-mock==3.14.0
+httpx[test]==0.27.2  # Testing async endpoints
+faker==33.1.0  # Generate fake data
+
+# ============================================
+# Code Quality (Development)
+# ============================================
+black==24.10.0  # Code formatter
+flake8==7.1.1  # Linter
+mypy==1.13.0  # Type checker
+isort==5.13.2  # Import sorting
+pre-commit==4.0.1  # Git hooks
+
+# ============================================
+# Documentation
+# ============================================
+# FastAPI auto-generates docs, but you can add:
+# mkdocs==1.6.1
+# mkdocs-material==9.5.47
+
+# ============================================
+# Optional: Advanced Features
+# ============================================
+# whisper  # OpenAI Whisper for caption timing (local, heavy)
+# torch  # PyTorch (if running models locally)
+# transformers  # Hugging Face models (if needed)
+
+# ============================================
+# Notes:
+# ============================================
+# 1. FFmpeg must be installed separately on system
+#    - Windows: choco install ffmpeg
+#    - Mac: brew install ffmpeg
+#    - Linux: apt-get install ffmpeg
+#
+# 2. Redis must be running:
+#    - Local: docker run -d -p 6379:6379 redis
+#    - Production: Redis Cloud or AWS ElastiCache
+#
+# 3. PostgreSQL must be set up:
+#    - Recommended: Supabase (hosted)
+#    - Alternative: Local PostgreSQL or AWS RDS
+#
+# 4. GPU workers for AI models should use:
+#    - Modal.com (recommended for MVP)
+#    - RunPod (cheapest)
+#    - AWS EC2 g5/g6 instances

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+
+# Environment variables (will be set in Vercel dashboard)
+.env.local
+.env*.local
+
+# Development
+.next
+.vscode
+*.log
+
+# Testing
+coverage
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Misc
+.DS_Store
+README.md

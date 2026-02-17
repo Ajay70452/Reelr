@@ -1,0 +1,184 @@
+@import "tailwindcss";
+
+:root {
+  /* ClipKing v3 — Depth-First Dark Theme */
+  --background: #0B0D12;
+  --background-secondary: #121624;
+  --background-tertiary: #151A2E;
+  --foreground: #FFFFFF;
+  --foreground-secondary: #A0A6B3;
+  --foreground-muted: #7E86B5;
+
+  /* Gray Shades */
+  --gray-800: #1A1E2E;
+  --gray-700: #222840;
+  --gray-600: #353D4A;
+  --gray-500: #4A5363;
+
+  /* Accent Colors (Electric Purple) */
+  --accent-primary: #7C5CFF;
+  --accent-hover: #9C84FF;
+  --accent-soft-glow: rgba(124, 92, 255, 0.35);
+  --accent-muted: rgba(124, 92, 255, 0.12);
+
+  /* Backward-compat aliases */
+  --neon-green: #7C5CFF;
+  --neon-green-hover: #9C84FF;
+  --neon-blue: #9C84FF;
+  --neon-blue-hover: #7C5CFF;
+
+  /* Card & Shadow */
+  --card-background: #14172a;
+  --card-border: transparent;
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  --shadow-glow-green: 0 14px 40px rgba(124, 92, 255, 0.18);
+  --shadow-glow-blue: 0 14px 40px rgba(124, 92, 255, 0.18);
+}
+
+@theme inline {
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-bg-secondary: var(--background-secondary);
+  --color-bg-tertiary: var(--background-tertiary);
+
+  --color-gray-800: var(--gray-800);
+  --color-gray-700: var(--gray-700);
+  --color-gray-600: var(--gray-600);
+  --color-gray-500: var(--gray-500);
+
+  /* Accent (purple) mapped to legacy neon names for compat */
+  --color-neon-green: var(--accent-primary);
+  --color-neon-green-hover: var(--accent-hover);
+  --color-neon-blue: var(--accent-primary);
+  --color-neon-blue-hover: var(--accent-hover);
+
+  /* Semantic accent names */
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+
+  --color-card: var(--card-background);
+  --color-card-border: var(--card-border);
+
+  /* Typography */
+  --font-sans: var(--font-inter);
+
+  /* Shadows */
+  --shadow-soft: var(--shadow-soft);
+  --shadow-glow-green: var(--shadow-glow-green);
+  --shadow-glow-blue: var(--shadow-glow-blue);
+}
+
+body {
+  background: radial-gradient(1200px 600px at 50% 0%, #14172a 0%, #0b0d12 60%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Utility Classes */
+@layer utilities {
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(124, 92, 255, 0.3);
+  }
+
+  .card-glow-purple {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.12);
+  }
+
+  /* Backward compat aliases */
+  .text-glow-green {
+    text-shadow: 0 0 10px rgba(124, 92, 255, 0.3);
+  }
+  .text-glow-blue {
+    text-shadow: 0 0 10px rgba(124, 92, 255, 0.3);
+  }
+  .card-glow-green {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.12);
+  }
+  .card-glow-blue {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.12);
+  }
+
+  /* Noise overlay — apply to a pseudo-element */
+  .bg-noise::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+/* Toast animation */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s ease-out;
+}
+
+/* Tab switch animation */
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 200ms ease-out;
+}
+
+/* Shimmer loading animation for generate button */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Gradient sweep for generate button hover */
+@keyframes gradient-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
