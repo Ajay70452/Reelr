@@ -8,3 +8,10 @@
 
 # Temp files
 tmpclaude-*
+
+# Utility / temp scripts
+add_credits.py
+run_new_migrations.py
+run_worker.py
+setup_database.py
+test_queue.py
