@@ -89,7 +89,7 @@ function RadioGroup<T extends string | number>({
 }) {
     return (
         <div>
-            <span className="text-xs font-semibold text-[#7E86B5] uppercase tracking-wider mb-3 block">{label}</span>
+            <span className="text-xs font-semibold text-[#6F7688] uppercase tracking-wider mb-3 block">{label}</span>
             <div className="flex flex-wrap gap-2">
                 {options.map((opt) => (
                     <button
@@ -97,8 +97,8 @@ function RadioGroup<T extends string | number>({
                         onClick={() => onChange(opt.value)}
                         className={`px-4 py-2.5 text-sm rounded-xl transition-all duration-120 whitespace-nowrap ${
                             value === opt.value
-                                ? 'bg-[#7C5CFF] text-white font-medium shadow-[0_0_16px_rgba(124,92,255,0.35)]'
-                                : 'bg-gradient-to-b from-[#161b30] to-[#121624] text-[#7E86B5] hover:text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[inset_0_0_0_1px_rgba(124,92,255,0.2)]'
+                                ? 'bg-[#C8FF4D] text-[#1C1F26] font-semibold shadow-[0_0_16px_rgba(200,255,77,0.35)]'
+                                : 'bg-gradient-to-b from-[#262b38] to-[#222631] text-[#A1A8B8] hover:text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)]'
                         }`}
                     >
                         {opt.label}
@@ -158,13 +158,13 @@ function FileUpload({
     return (
         <div>
             <div className="flex items-center gap-1 mb-2">
-                <span className="text-sm font-medium text-[#7E86B5]">{label}</span>
+                <span className="text-sm font-medium text-[#A1A8B8]">{label}</span>
                 {required && <span className="text-red-400 text-xs">*</span>}
             </div>
             <input ref={inputRef} type="file" accept={accept} onChange={handleChange} className="hidden" />
 
             {preview ? (
-                <div className="relative group rounded-2xl overflow-hidden bg-[#14172a]">
+                <div className="relative group rounded-2xl overflow-hidden bg-[#222631]">
                     {accept.includes('image') ? (
                         <img src={preview} alt="Preview" className="w-full h-40 object-cover" />
                     ) : (
@@ -173,7 +173,7 @@ function FileUpload({
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                         <button
                             onClick={() => inputRef.current?.click()}
-                            className="px-3 py-1.5 text-xs bg-[#14172a] text-white rounded-lg hover:bg-[#1A1E2E] transition-colors"
+                            className="px-3 py-1.5 text-xs bg-[#222631] text-white rounded-lg hover:bg-[#262B38] transition-colors"
                         >
                             Change
                         </button>
@@ -188,13 +188,13 @@ function FileUpload({
             ) : (
                 <button
                     onClick={() => inputRef.current?.click()}
-                    className="w-full h-40 rounded-2xl flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-[#161b30] to-[#121624] shadow-[inset_0_2px_6px_rgba(0,0,0,0.4),inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[inset_0_2px_6px_rgba(0,0,0,0.4),0_0_0_2px_rgba(124,92,255,0.2)] transition-all duration-150 group"
+                    className="w-full h-40 rounded-2xl flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-[#262b38] to-[#222631] shadow-[inset_0_2px_6px_rgba(0,0,0,0.4),inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[inset_0_2px_6px_rgba(0,0,0,0.4),0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)] transition-all duration-150 group"
                 >
-                    <UploadIcon className="w-8 h-8 text-[#7E86B5] group-hover:text-[#7C5CFF] transition-colors" />
-                    <span className="text-sm text-[#7E86B5] group-hover:text-white transition-colors">
+                    <UploadIcon className="w-8 h-8 text-[#A1A8B8] group-hover:text-[#C8FF4D] transition-colors" />
+                    <span className="text-sm text-[#A1A8B8] group-hover:text-white transition-colors">
                         Click to upload
                     </span>
-                    {hint && <span className="text-xs text-[#5A6179]">{hint}</span>}
+                    {hint && <span className="text-xs text-[#6F7688]">{hint}</span>}
                 </button>
             )}
         </div>
@@ -260,12 +260,12 @@ function ThemeCard({
             onClick={onSelect}
             className={`relative rounded-2xl overflow-hidden transition-all duration-150 group shadow-[0_8px_24px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)] ${
                 isSelected
-                    ? 'shadow-[0_8px_30px_rgba(124,92,255,0.25),inset_0_0_0_1px_rgba(124,92,255,0.3)] scale-[1.02]'
-                    : 'hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(124,92,255,0.18),inset_0_0_0_1px_rgba(255,255,255,0.06)]'
+                    ? 'card-glow-lime scale-[1.02]'
+                    : 'hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(200,255,77,0.15),inset_0_0_0_1px_rgba(255,255,255,0.06)]'
             }`}
         >
             {/* 9:16 Video Preview */}
-            <div className="aspect-[9/16] bg-[#0B0D12] relative">
+            <div className="aspect-[9/16] bg-[#1C1F26] relative">
                 {theme.preview_url ? (
                     <>
                         <video
@@ -313,13 +313,13 @@ function ThemeCard({
                         )}
                     </>
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#1e2450] to-[#14172a] flex items-center justify-center">
-                        <div className="w-16 h-16 border-4 border-[rgba(255,255,255,0.06)] border-t-[#7C5CFF] rounded-full animate-spin" />
+                    <div className="w-full h-full bg-gradient-to-br from-[#262b38] to-[#222631] flex items-center justify-center">
+                        <div className="w-16 h-16 border-4 border-[rgba(255,255,255,0.06)] border-t-[#C8FF4D] rounded-full animate-spin" />
                     </div>
                 )}
-                {/* Selection indicator - subtle purple glow overlay */}
+                {/* Selection indicator - lime glow overlay */}
                 {isSelected && (
-                    <div className="absolute inset-0 bg-[#7C5CFF]/10 border-2 border-[#7C5CFF] pointer-events-none" />
+                    <div className="absolute inset-0 bg-[#C8FF4D]/10 border-2 border-[#C8FF4D] pointer-events-none" />
                 )}
             </div>
         </button>
@@ -381,20 +381,20 @@ function PreviewPanel({
     if (completedVideoUrl) {
         return (
             <div className="flex flex-col h-full p-6">
-                <div className="flex-1 relative rounded-2xl overflow-hidden bg-[#0B0D12]">
+                <div className="flex-1 relative rounded-2xl overflow-hidden bg-[#1C1F26]">
                     <video src={completedVideoUrl} controls className="w-full h-full object-contain" />
                 </div>
                 <div className="flex gap-3 mt-4">
                     <button
                         onClick={onRegenerate}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#14172a] text-[#7E86B5] rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[inset_0_0_0_1px_rgba(124,92,255,0.2)] hover:text-white transition-all duration-120"
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#222631] text-[#A1A8B8] rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)] hover:text-white transition-all duration-120"
                     >
                         <RefreshIcon className="w-4 h-4" />
                         Regenerate
                     </button>
                     <button
                         onClick={onDownload}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-br from-[#7C5CFF] to-[#b79cff] text-white rounded-xl hover:brightness-110 shadow-[0_4px_16px_rgba(124,92,255,0.35)] hover:shadow-[0_6px_24px_rgba(124,92,255,0.5)] transition-all duration-120"
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#C8FF4D] text-[#1C1F26] font-semibold rounded-xl hover:bg-[#D8FF75] shadow-[0_4px_16px_rgba(200,255,77,0.35)] hover:shadow-[0_6px_24px_rgba(200,255,77,0.5)] transition-all duration-120"
                     >
                         <DownloadIcon className="w-4 h-4" />
                         Download
@@ -407,12 +407,12 @@ function PreviewPanel({
     // Empty state — placeholder
     return (
         <div className="flex flex-col items-center justify-center h-full gap-5 p-6 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-b from-[#1e2450] to-[#14172a] flex items-center justify-center shadow-[0_0_30px_rgba(124,92,255,0.1)]">
-                <SparklesIcon className="w-10 h-10 text-[#7C5CFF]/60" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-b from-[#262b38] to-[#222631] flex items-center justify-center shadow-[0_0_30px_rgba(200,255,77,0.1)]">
+                <SparklesIcon className="w-10 h-10 text-[#C8FF4D]/60" />
             </div>
             <div>
                 <p className="text-lg font-semibold text-white">Your AI Video Preview</p>
-                <p className="text-sm text-[#7E86B5] mt-1.5 italic font-light">Pick a theme, upload your photo, and watch the magic</p>
+                <p className="text-sm text-[#A1A8B8] mt-1.5 italic font-light">Pick a theme, upload your photo, and watch the magic</p>
             </div>
         </div>
     );
@@ -572,8 +572,8 @@ function TrendingThemeTab({
                         disabled={busy || !imageDataUrl}
                         className={`w-full py-4 rounded-[14px] font-semibold text-base transition-all ${
                             busy || !imageDataUrl
-                                ? 'bg-[#1A1E2E] text-[#5A6179] cursor-not-allowed'
-                                : 'bg-gradient-to-br from-[#7C5CFF] to-[#b79cff] text-white hover:brightness-110 shadow-[0_6px_24px_rgba(124,92,255,0.4)] hover:shadow-[0_10px_40px_rgba(124,92,255,0.5)]'
+                                ? 'bg-[#222631] text-[#6F7688] cursor-not-allowed'
+                                : 'bg-[#C8FF4D] text-[#1C1F26] hover:bg-[#D8FF75] shadow-[0_6px_24px_rgba(200,255,77,0.4)] hover:shadow-[0_10px_40px_rgba(200,255,77,0.5)]'
                         }`}
                     >
                         {generateTheme.isPending ? (
@@ -719,7 +719,7 @@ function CreateYourOwnTab({
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder="Optionally describe the look you want (e.g., 'Cyberpunk style, neon lighting')"
-                        className="w-full px-4 py-3 bg-gradient-to-b from-[#161b30] to-[#121624] rounded-[14px] text-white placeholder-[#7E86B5] resize-none focus:outline-none focus:shadow-[0_0_0_2px_rgba(124,92,255,0.25),inset_0_2px_6px_rgba(0,0,0,0.4)] shadow-[inset_0_2px_6px_rgba(0,0,0,0.4)] text-sm leading-relaxed transition-all duration-150"
+                        className="w-full px-4 py-3 bg-gradient-to-b from-[#262b38] to-[#222631] rounded-[14px] text-white placeholder-[#A1A8B8] resize-none focus:outline-none focus:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25),inset_0_2px_6px_rgba(0,0,0,0.4)] shadow-[inset_0_2px_6px_rgba(0,0,0,0.4)] text-sm leading-relaxed transition-all duration-150"
                         rows={2}
                     />
                 </div>
@@ -773,8 +773,8 @@ function CreateYourOwnTab({
                     disabled={busy || !canGenerate}
                     className={`w-full py-4 rounded-[14px] font-semibold text-base transition-all ${
                         busy || !canGenerate
-                            ? 'bg-[#262C37] text-[#6E7685] cursor-not-allowed'
-                            : 'bg-gradient-to-r from-[#7C5CFF] to-[#9C7DFF] text-white hover:from-[#9377FF] hover:to-[#A88FFF] shadow-[0_4px_20px_rgba(124,92,255,0.4)] hover:shadow-[0_4px_28px_rgba(124,92,255,0.55)]'
+                            ? 'bg-[#222631] text-[#6F7688] cursor-not-allowed'
+                            : 'bg-[#C8FF4D] text-[#1C1F26] hover:bg-[#D8FF75] shadow-[0_4px_20px_rgba(200,255,77,0.4)] hover:shadow-[0_4px_28px_rgba(200,255,77,0.55)]'
                     }`}
                 >
                     {generateCustom.isPending ? (
@@ -845,13 +845,13 @@ export default function TrendingVideoPage() {
                 {/* Header */}
                 <header className="flex-shrink-0 px-4 md:px-6 xl:px-8 py-4 md:py-6">
                     <h1 className="text-2xl md:text-[28px] xl:text-[32px] font-bold text-white tracking-tight">Trending AI Videos</h1>
-                    <p className="text-[#7E86B5] text-sm mt-1">Turn yourself into viral trend videos in seconds</p>
+                    <p className="text-[#A1A8B8] text-sm mt-1">Turn yourself into viral trend videos in seconds</p>
                 </header>
 
                 {/* Tablet/Mobile Preview — shown above inputs below xl */}
                 {(isGenerating || completedVideoUrl || isPending) && (
                     <div className="xl:hidden px-4 md:px-6 pb-4">
-                        <div className="rounded-[20px] overflow-hidden max-h-[300px] md:max-h-[350px]" style={{ background: 'linear-gradient(180deg, #1e2450 0%, #14172a 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(124,92,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.04)' }}>
+                        <div className="rounded-[20px] overflow-hidden max-h-[300px] md:max-h-[350px]" style={{ background: 'linear-gradient(180deg, #262b38 0%, #222631 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(200,255,77,0.08), inset 0 0 0 1px rgba(255,255,255,0.04)' }}>
                             <PreviewPanel
                                 isGenerating={isGenerating}
                                 isPending={isPending}
@@ -870,23 +870,23 @@ export default function TrendingVideoPage() {
                     <div className="flex-1 xl:overflow-y-auto px-4 md:px-6 xl:px-8 pb-24 md:pb-8">
                         {/* Segmented Tabs */}
                         <div className="pb-4 md:pb-6">
-                            <div className="flex md:inline-flex bg-[#14172a] rounded-full p-1 shadow-[0_4px_20px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
+                            <div className="flex md:inline-flex bg-[#222631] rounded-full p-1 shadow-[0_4px_20px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
                                 <button
                                     onClick={() => setActiveTab('themes')}
-                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-200 ${
+                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 ${
                                         activeTab === 'themes'
-                                            ? 'bg-[#7C5CFF] text-white shadow-lg shadow-[#7C5CFF]/20'
-                                            : 'text-[#7E86B5] hover:text-white'
+                                            ? 'bg-[#C8FF4D] text-[#1C1F26] shadow-lg shadow-[rgba(200,255,77,0.2)]'
+                                            : 'text-[#A1A8B8] hover:text-white'
                                     }`}
                                 >
                                     Trending Themes
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('create')}
-                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-200 ${
+                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 ${
                                         activeTab === 'create'
-                                            ? 'bg-[#7C5CFF] text-white shadow-lg shadow-[#7C5CFF]/20'
-                                            : 'text-[#7E86B5] hover:text-white'
+                                            ? 'bg-[#C8FF4D] text-[#1C1F26] shadow-lg shadow-[rgba(200,255,77,0.2)]'
+                                            : 'text-[#A1A8B8] hover:text-white'
                                     }`}
                                 >
                                     Create Your Own
@@ -905,10 +905,10 @@ export default function TrendingVideoPage() {
                     </div>
 
                     {/* Right Panel — Preview (desktop only) */}
-                    <div className="hidden xl:flex w-[400px] 2xl:w-[440px] bg-[#0B0D12] flex-shrink-0 shadow-[-1px_0_0_rgba(255,255,255,0.04)]">
+                    <div className="hidden xl:flex w-[400px] 2xl:w-[440px] bg-[#1C1F26] flex-shrink-0 shadow-[-1px_0_0_rgba(255,255,255,0.04)]">
                         <div className="w-full flex flex-col p-6">
                             <h3 className="text-lg font-semibold text-white mb-4 flex-shrink-0">Preview</h3>
-                            <div className="flex-1 rounded-[20px] overflow-hidden" style={{ background: 'linear-gradient(180deg, #1e2450 0%, #14172a 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(124,92,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.04)' }}>
+                            <div className="flex-1 rounded-[20px] overflow-hidden" style={{ background: 'linear-gradient(180deg, #262b38 0%, #222631 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(200,255,77,0.08), inset 0 0 0 1px rgba(255,255,255,0.04)' }}>
                                 <PreviewPanel
                                     isGenerating={isGenerating}
                                     isPending={isPending}

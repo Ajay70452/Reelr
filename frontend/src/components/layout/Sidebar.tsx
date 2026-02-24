@@ -97,7 +97,7 @@ function NavItem({ href, icon, label, isActive, isLocked, onLockedClick }: NavIt
         return (
             <button
                 onClick={onLockedClick}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:text-gray-400 hover:bg-gray-800/50 transition-all duration-200 group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:text-gray-400 hover:bg-[#222631]/50 transition-all duration-200 group"
             >
                 <span className="w-5 h-5">{icon}</span>
                 <span className="flex-1 text-left text-sm font-medium">{label}</span>
@@ -110,11 +110,11 @@ function NavItem({ href, icon, label, isActive, isLocked, onLockedClick }: NavIt
         <Link
             href={href}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
-                    ? 'bg-accent/10 text-accent border border-accent/20'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    ? 'sidebar-active-glow text-[#C8FF4D]'
+                    : 'text-gray-300 hover:text-white hover:bg-[#222631]'
                 }`}
         >
-            <span className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-gray-400 group-hover:text-white'}`}>
+            <span className={`w-5 h-5 ${isActive ? 'text-[#C8FF4D]' : 'text-gray-400 group-hover:text-white'}`}>
                 {icon}
             </span>
             <span className="text-sm font-medium">{label}</span>
@@ -151,12 +151,12 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
 
     const sidebarContent = (
-        <aside className="h-full w-64 bg-[#0B0D12] border-r border-[rgba(255,255,255,0.04)] flex flex-col">
+        <aside className="h-full w-64 bg-[#1C1F26] border-r border-[rgba(255,255,255,0.04)] flex flex-col">
                 {/* Brand Header */}
                 <div className="p-4 border-b border-[rgba(255,255,255,0.04)]">
                     <Link href="/generate/video" className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent-hover rounded-xl flex items-center justify-center shadow-lg shadow-accent/20">
-                            <span className="text-white font-bold text-xl">C</span>
+                        <div className="w-10 h-10 bg-[#C8FF4D] rounded-xl flex items-center justify-center shadow-lg shadow-[rgba(200,255,77,0.2)]">
+                            <span className="text-[#1C1F26] font-bold text-xl">C</span>
                         </div>
                         <span className="text-xl font-bold text-white">ClipKing</span>
                     </Link>
@@ -227,7 +227,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 {/* Footer */}
                 <div className="p-4 border-t border-[rgba(255,255,255,0.04)] space-y-3">
                     {/* Credits */}
-                    <div className="flex items-center justify-between px-3 py-2.5 bg-[#121624] rounded-lg">
+                    <div className="flex items-center justify-between px-3 py-2.5 bg-[#222631] rounded-lg">
                         <div className="flex items-center gap-2">
                             <CreditIcon className="w-5 h-5 text-accent" />
                             <span className="text-sm text-gray-300">Credits</span>
@@ -248,7 +248,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     <div className="relative">
                         <button
                             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-all duration-200"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-[#222631] transition-all duration-200"
                         >
                             <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
                                 <UserIcon className="w-4 h-4 text-gray-300" />
@@ -262,17 +262,17 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
                         {/* Dropdown Menu */}
                         {profileDropdownOpen && (
-                            <div className="absolute bottom-full left-0 w-full mb-2 bg-[#161A21] border border-[#262C37] rounded-lg shadow-xl overflow-hidden">
+                            <div className="absolute bottom-full left-0 w-full mb-2 bg-[#222631] border border-[#2F3442] rounded-lg shadow-xl overflow-hidden">
                                 <Link
                                     href="/settings"
-                                    className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                                    className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-[#262B38] transition-colors"
                                     onClick={() => setProfileDropdownOpen(false)}
                                 >
                                     Settings
                                 </Link>
                                 <Link
                                     href="/billing"
-                                    className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                                    className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-[#262B38] transition-colors"
                                     onClick={() => setProfileDropdownOpen(false)}
                                 >
                                     Billing
@@ -282,7 +282,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                         setProfileDropdownOpen(false);
                                         logout();
                                     }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800 transition-colors border-t border-gray-800"
+                                    className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-[#262B38] transition-colors border-t border-[#2F3442]"
                                 >
                                     Logout
                                 </button>

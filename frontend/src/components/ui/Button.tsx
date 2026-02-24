@@ -12,10 +12,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-120 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg';
 
     const variants = {
-      primary: 'bg-gradient-to-br from-[#7C5CFF] to-[#b79cff] text-white hover:brightness-110 hover:shadow-[0_10px_40px_rgba(124,92,255,0.45)]',
-      secondary: 'bg-[#14172a] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)] hover:shadow-[inset_0_0_0_1px_rgba(124,92,255,0.3),0_10px_30px_rgba(124,92,255,0.15)]',
+      primary: 'bg-[#C8FF4D] text-[#1C1F26] font-semibold hover:bg-[#D8FF75] hover:-translate-y-0.5 shadow-[0_4px_14px_rgba(200,255,77,0.3)] hover:shadow-[0_6px_20px_rgba(200,255,77,0.4)]',
+      secondary: 'bg-[#222631] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)]',
       outline: 'border-2 border-accent text-accent hover:bg-accent/10',
-      ghost: 'text-gray-300 hover:bg-[#14172a] hover:text-white',
+      ghost: 'text-gray-300 hover:bg-[#222631] hover:text-white',
       danger: 'bg-red-600 text-white hover:bg-red-700',
     };
     

@@ -1,0 +1,10 @@
+# AI tool / IDE configs
+.agent/
+.agents/
+.claude/
+.cursor/
+.gemini/
+.trae/
+
+# Temp files
+tmpclaude-*

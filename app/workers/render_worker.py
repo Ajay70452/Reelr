@@ -324,14 +324,19 @@ def burn_in_captions(
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    # Extract style settings
-    font = style_config.get("font", "Arial")
-    font_size = style_config.get("font_size", 48)
+    # Extract style settings (TikTok/Instagram modern)
+    font = style_config.get("font", "Arial-Bold")
+    font_size = style_config.get("font_size", 70)
     font_color = style_config.get("font_color", "white")
-    bg_color = style_config.get("bg_color", "black")
-    bg_opacity = style_config.get("bg_opacity", 0.7)
-    position = style_config.get("position", "bottom")
-    margin = style_config.get("margin", 50)
+    outline_color = style_config.get("outline_color", "black")
+    outline_width = style_config.get("outline_width", 8)
+    shadow_color = style_config.get("shadow_color", "black")
+    shadow_offset = style_config.get("shadow_offset", 3)
+    bg_color = style_config.get("bg_color")
+    bg_opacity = style_config.get("bg_opacity", 0)
+    position = style_config.get("position", "center")
+    margin = style_config.get("margin", 0)
+    letter_spacing = style_config.get("letter_spacing", 0)
 
     # Build position expression
     if position == "bottom":
@@ -348,24 +353,39 @@ def burn_in_captions(
         text = caption.get("text", "").replace("'", "\\'").replace(":", "\\:")
         start = caption.get("start", 0)
         end = caption.get("end", start + 2)
-        emphasis_indices = caption.get("emphasis_indices", [])
 
-        # Basic drawtext filter
+        # Build modern TikTok/Instagram style with outline and shadow
+        style_parts = [
+            f"drawtext=text='{text}'",
+            "fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            f"fontsize={font_size}",
+            f"fontcolor={font_color}",
+            f"borderw={outline_width}",
+            f"bordercolor={outline_color}",
+            "x=(w-tw)/2",
+            f"y={y_expr}",
+        ]
+
+        # Add shadow effect
+        if shadow_offset > 0:
+            style_parts.extend([
+                f"shadowcolor={shadow_color}",
+                f"shadowx={shadow_offset}",
+                f"shadowy={shadow_offset}",
+            ])
+
+        # Add background box only if specified
         if bg_color and bg_opacity > 0:
-            box_expr = f":box=1:boxcolor={bg_color}@{bg_opacity}:boxborderw=10"
-        else:
-            box_expr = ""
+            style_parts.extend([
+                "box=1",
+                f"boxcolor={bg_color}@{bg_opacity}",
+                "boxborderw=10",
+            ])
 
-        filter_part = (
-            f"drawtext=text='{text}':"
-            f"fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:"
-            f"fontsize={font_size}:"
-            f"fontcolor={font_color}:"
-            f"x=(w-tw)/2:"
-            f"y={y_expr}"
-            f"{box_expr}:"
-            f"enable='between(t,{start},{end})'"
-        )
+        # Add timing
+        style_parts.append(f"enable='between(t,{start},{end})'")
+
+        filter_part = ":".join(style_parts)
         filter_parts.append(filter_part)
 
     # Combine all drawtext filters

@@ -19,10 +19,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 <input
                     type={type}
                     className={cn(
-                        'w-full px-4 py-3 rounded-[14px] text-white placeholder-[#7E86B5]',
-                        'bg-gradient-to-b from-[#161b30] to-[#121624]',
+                        'w-full px-4 py-3 rounded-[14px] text-white placeholder-[#A1A8B8]',
+                        'bg-gradient-to-b from-[#262b38] to-[#222631]',
                         'shadow-[inset_0_2px_6px_rgba(0,0,0,0.4)]',
-                        'focus:outline-none focus:shadow-[0_0_0_2px_rgba(124,92,255,0.25),inset_0_2px_6px_rgba(0,0,0,0.4)]',
+                        'focus:outline-none focus:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25),inset_0_2px_6px_rgba(0,0,0,0.4)]',
                         'transition-all duration-150',
                         error ? 'ring-1 ring-red-500' : '',
                         className

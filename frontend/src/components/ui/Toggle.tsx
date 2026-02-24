@@ -24,8 +24,8 @@ export default function Toggle({ label, enabled, onChange, disabled = false }: T
             >
                 <span
                     className={cn(
-                        'inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200',
-                        enabled ? 'translate-x-6' : 'translate-x-1'
+                        'inline-block h-4 w-4 transform rounded-full transition-all duration-200',
+                        enabled ? 'translate-x-6 bg-[#1C1F26]' : 'translate-x-1 bg-white'
                     )}
                 />
             </button>

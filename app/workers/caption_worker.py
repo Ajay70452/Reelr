@@ -28,44 +28,76 @@ logger = get_logger("caption")
 
 
 # ============================================
-# Caption Styles
+# Caption Styles (TikTok/Instagram Modern)
 # ============================================
 CAPTION_STYLES = {
     "default": {
-        "font": "Arial",
-        "font_size": 48,
-        "font_color": "#FFFFFF",
-        "bg_color": "#000000",
-        "bg_opacity": 0.7,
-        "position": "bottom",  # bottom, center, top
-        "margin": 50,
-    },
-    "bold": {
         "font": "Arial-Bold",
-        "font_size": 56,
+        "font_size": 70,
         "font_color": "#FFFFFF",
-        "bg_color": "#000000",
-        "bg_opacity": 0.8,
+        "outline_color": "#000000",
+        "outline_width": 8,
+        "bg_color": None,  # No background box
+        "bg_opacity": 0,
+        "shadow_color": "#000000",
+        "shadow_offset": 3,
         "position": "center",
         "margin": 0,
+        "letter_spacing": 0,
     },
-    "minimal": {
-        "font": "Helvetica",
-        "font_size": 42,
+    "tiktok": {
+        "font": "Arial-Bold",
+        "font_size": 72,
         "font_color": "#FFFFFF",
+        "outline_color": "#000000",
+        "outline_width": 10,
         "bg_color": None,
         "bg_opacity": 0,
-        "position": "bottom",
-        "margin": 80,
-    },
-    "highlight": {
-        "font": "Arial-Bold",
-        "font_size": 52,
-        "font_color": "#000000",
-        "bg_color": "#FFFF00",
-        "bg_opacity": 1.0,
+        "shadow_color": "#000000",
+        "shadow_offset": 4,
         "position": "center",
         "margin": 0,
+        "letter_spacing": 2,
+    },
+    "instagram": {
+        "font": "Arial-Bold",
+        "font_size": 68,
+        "font_color": "#FFFFFF",
+        "outline_color": "#000000",
+        "outline_width": 7,
+        "bg_color": None,
+        "bg_opacity": 0,
+        "shadow_color": "#000000",
+        "shadow_offset": 3,
+        "position": "center",
+        "margin": 0,
+        "letter_spacing": 1,
+    },
+    "youtube": {
+        "font": "Arial-Bold",
+        "font_size": 60,
+        "font_color": "#FFFFFF",
+        "outline_color": "#000000",
+        "outline_width": 6,
+        "bg_color": "#000000",
+        "bg_opacity": 0.75,
+        "position": "bottom",
+        "margin": 60,
+        "letter_spacing": 0,
+    },
+    "minimal": {
+        "font": "Arial-Bold",
+        "font_size": 64,
+        "font_color": "#FFFFFF",
+        "outline_color": "#000000",
+        "outline_width": 5,
+        "bg_color": None,
+        "bg_opacity": 0,
+        "shadow_color": "#00000080",
+        "shadow_offset": 2,
+        "position": "bottom",
+        "margin": 80,
+        "letter_spacing": 0,
     },
 }
 

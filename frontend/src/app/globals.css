@@ -1,63 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  /* ClipKing v3 — Depth-First Dark Theme */
-  --background: #0B0D12;
-  --background-secondary: #121624;
-  --background-tertiary: #151A2E;
-  --foreground: #FFFFFF;
-  --foreground-secondary: #A0A6B3;
-  --foreground-muted: #7E86B5;
+  /* ClipKing v4 — Lime Green + Dark Graphite Design System */
 
-  /* Gray Shades */
-  --gray-800: #1A1E2E;
-  --gray-700: #222840;
-  --gray-600: #353D4A;
-  --gray-500: #4A5363;
+  /* Backgrounds - Dark Graphite System */
+  --background: #1C1F26;
+  --background-secondary: #222631;
+  --background-elevated: #262B38;
+  --background-border: #2F3442;
 
-  /* Accent Colors (Electric Purple) */
-  --accent-primary: #7C5CFF;
-  --accent-hover: #9C84FF;
-  --accent-soft-glow: rgba(124, 92, 255, 0.35);
-  --accent-muted: rgba(124, 92, 255, 0.12);
+  /* Text Hierarchy */
+  --foreground: #E8EBF1;
+  --foreground-secondary: #A1A8B8;
+  --foreground-muted: #6F7688;
 
-  /* Backward-compat aliases */
-  --neon-green: #7C5CFF;
-  --neon-green-hover: #9C84FF;
-  --neon-blue: #9C84FF;
-  --neon-blue-hover: #7C5CFF;
+  /* Gray Shades (updated for new palette) */
+  --gray-800: #1C1F26;
+  --gray-700: #222631;
+  --gray-600: #2F3442;
+  --gray-500: #6F7688;
 
-  /* Card & Shadow */
-  --card-background: #14172a;
+  /* Lime Green - ACTION ONLY */
+  --accent-primary: #C8FF4D;
+  --accent-hover: #D8FF75;
+  --accent-soft-glow: rgba(200, 255, 77, 0.35);
+  --accent-muted: rgba(200, 255, 77, 0.12);
+
+  /* Backward-compat aliases (now point to lime) */
+  --neon-green: #C8FF4D;
+  --neon-green-hover: #D8FF75;
+  --neon-blue: #C8FF4D;
+  --neon-blue-hover: #D8FF75;
+
+  /* Card & Shadow System */
+  --card-background: #222631;
   --card-border: transparent;
-  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-  --shadow-glow-green: 0 14px 40px rgba(124, 92, 255, 0.18);
-  --shadow-glow-blue: 0 14px 40px rgba(124, 92, 255, 0.18);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --shadow-glow-lime: 0 0 0 1px rgba(200, 255, 77, 0.4), 0 0 18px rgba(200, 255, 77, 0.25);
+  --shadow-card-float: 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+
+  /* Legacy shadow names for compatibility */
+  --shadow-glow-green: 0 0 0 1px rgba(200, 255, 77, 0.4), 0 0 18px rgba(200, 255, 77, 0.25);
+  --shadow-glow-blue: 0 0 0 1px rgba(200, 255, 77, 0.4), 0 0 18px rgba(200, 255, 77, 0.25);
+
+  /* Card Gradient */
+  --card-gradient: linear-gradient(180deg, #262b38 0%, #222631 100%);
 }
 
 @theme inline {
-  /* Colors */
+  /* Backgrounds */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
   --color-bg-secondary: var(--background-secondary);
-  --color-bg-tertiary: var(--background-tertiary);
+  --color-bg-elevated: var(--background-elevated);
+  --color-bg-border: var(--background-border);
 
+  /* Text Hierarchy */
+  --color-text-secondary: var(--foreground-secondary);
+  --color-text-muted: var(--foreground-muted);
+
+  /* Grays */
   --color-gray-800: var(--gray-800);
   --color-gray-700: var(--gray-700);
   --color-gray-600: var(--gray-600);
   --color-gray-500: var(--gray-500);
 
-  /* Accent (purple) mapped to legacy neon names for compat */
+  /* Lime Green Accent */
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+
+  /* Legacy neon names (now lime green) */
   --color-neon-green: var(--accent-primary);
   --color-neon-green-hover: var(--accent-hover);
   --color-neon-blue: var(--accent-primary);
   --color-neon-blue-hover: var(--accent-hover);
 
-  /* Semantic accent names */
-  --color-accent: var(--accent-primary);
-  --color-accent-hover: var(--accent-hover);
-
+  /* Cards */
   --color-card: var(--card-background);
   --color-card-border: var(--card-border);
 
@@ -66,12 +85,16 @@
 
   /* Shadows */
   --shadow-soft: var(--shadow-soft);
+  --shadow-glow-lime: var(--shadow-glow-lime);
+  --shadow-card-float: var(--shadow-card-float);
+
+  /* Legacy shadow names (now lime) */
   --shadow-glow-green: var(--shadow-glow-green);
   --shadow-glow-blue: var(--shadow-glow-blue);
 }
 
 body {
-  background: radial-gradient(1200px 600px at 50% 0%, #14172a 0%, #0b0d12 60%);
+  background: radial-gradient(1200px 600px at 50% 0%, #262b38 0%, #1c1f26 60%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
@@ -81,26 +104,52 @@ body {
 
 /* Utility Classes */
 @layer utilities {
-  .text-glow-purple {
-    text-shadow: 0 0 10px rgba(124, 92, 255, 0.3);
+  /* Lime Green Glows */
+  .text-glow-lime {
+    text-shadow: 0 0 10px rgba(200, 255, 77, 0.3);
   }
 
-  .card-glow-purple {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.12);
+  .card-glow-lime {
+    box-shadow: 0 0 0 1px rgba(200, 255, 77, 0.4), 0 0 18px rgba(200, 255, 77, 0.25);
   }
 
-  /* Backward compat aliases */
-  .text-glow-green {
-    text-shadow: 0 0 10px rgba(124, 92, 255, 0.3);
+  .card-glow-lime-soft {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(200, 255, 77, 0.12);
   }
+
+  /* Floating Card Effects */
+  .card-float {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  .card-float-hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(200, 255, 77, 0.15);
+  }
+
+  /* Card Gradient Background */
+  .bg-card-gradient {
+    background: linear-gradient(180deg, #262b38 0%, #222631 100%);
+  }
+
+  /* Sidebar Active Item with Lime Left Bar */
+  .sidebar-active-glow {
+    background: #232734;
+    border-left: 3px solid #C8FF4D;
+    padding-left: calc(0.75rem - 3px);
+  }
+
+  /* Backward compat aliases (now lime green) */
+  .text-glow-purple,
+  .text-glow-green,
   .text-glow-blue {
-    text-shadow: 0 0 10px rgba(124, 92, 255, 0.3);
+    text-shadow: 0 0 10px rgba(200, 255, 77, 0.3);
   }
-  .card-glow-green {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.12);
-  }
+
+  .card-glow-purple,
+  .card-glow-green,
   .card-glow-blue {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px rgba(200, 255, 77, 0.12);
   }
 
   /* Noise overlay — apply to a pseudo-element */

@@ -11,9 +11,9 @@ export default function Card({ children, className, hover = false, glow = false,
     return (
         <div
             className={cn(
-                'bg-[#14172a] rounded-2xl p-5 shadow-[0_8px_24px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)]',
-                hover && 'transition-all duration-150 hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(124,92,255,0.18)] cursor-pointer',
-                glow && 'shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_20px_rgba(124,92,255,0.12)]',
+                'bg-card-gradient rounded-2xl p-5 card-float',
+                hover && 'transition-all duration-150 hover:card-float-hover cursor-pointer',
+                glow && 'card-glow-lime-soft',
                 className
             )}
             {...props}

@@ -76,7 +76,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     // Show loading state while checking auth
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-[#0B0D12] flex items-center justify-center">
+            <div className="min-h-screen bg-[#1C1F26] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
                     <p className="text-gray-400 text-sm">Loading...</p>
@@ -94,20 +94,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
         pathname === matchPrefix || pathname.startsWith(matchPrefix + '/');
 
     return (
-        <div className="min-h-screen bg-[#0B0D12]">
+        <div className="min-h-screen bg-[#1C1F26]">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
             {/* Mobile/Tablet Top Bar — visible below xl */}
-            <header className="sticky top-0 z-30 xl:hidden flex items-center justify-between h-14 px-4 bg-[#0B0D12]/95 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.04)]">
+            <header className="sticky top-0 z-30 xl:hidden flex items-center justify-between h-14 px-4 bg-[#1C1F26]/95 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.04)]">
                 <Link href="/generate/video" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-lg flex items-center justify-center shadow-lg shadow-accent/20">
-                        <span className="text-white font-bold text-sm">C</span>
+                    <div className="w-8 h-8 bg-[#C8FF4D] rounded-lg flex items-center justify-center shadow-lg shadow-[rgba(200,255,77,0.2)]">
+                        <span className="text-[#1C1F26] font-bold text-sm">C</span>
                     </div>
                     <span className="text-lg font-bold text-white">ClipKing</span>
                 </Link>
                 <button
                     onClick={() => setSidebarOpen(true)}
-                    className="p-2 text-[#7E86B5] hover:text-white transition-colors rounded-lg"
+                    className="p-2 text-[#A1A8B8] hover:text-white transition-colors rounded-lg"
                 >
                     <MenuIcon className="w-6 h-6" />
                 </button>
@@ -119,7 +119,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </main>
 
             {/* Mobile Bottom Nav — visible below md */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-[#0B0D12]/95 backdrop-blur-md shadow-[0_-1px_0_rgba(255,255,255,0.04)]">
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-[#1C1F26]/95 backdrop-blur-md shadow-[0_-1px_0_rgba(255,255,255,0.04)]">
                 <div className="flex items-center justify-around h-full">
                     {BOTTOM_TABS.map((tab) => {
                         const active = isTabActive(tab.matchPrefix);
@@ -129,7 +129,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                                 key={tab.href}
                                 href={tab.href}
                                 className={`flex flex-col items-center justify-center gap-1 min-w-[64px] py-1 transition-colors ${
-                                    active ? 'text-[#7C5CFF]' : 'text-[#7E86B5]'
+                                    active ? 'text-[#C8FF4D]' : 'text-[#A1A8B8]'
                                 }`}
                             >
                                 <Icon className="w-5 h-5" />

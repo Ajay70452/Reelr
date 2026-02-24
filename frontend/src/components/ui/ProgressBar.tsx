@@ -25,8 +25,8 @@ export default function ProgressBar({
     };
 
     const glows = {
-        green: 'shadow-[0_0_10px_rgba(124,92,255,0.5)]',
-        blue: 'shadow-[0_0_10px_rgba(124,92,255,0.5)]',
+        green: 'shadow-[0_0_10px_rgba(200,255,77,0.5)]',
+        blue: 'shadow-[0_0_10px_rgba(200,255,77,0.5)]',
     };
 
     return (
