@@ -30,7 +30,6 @@ COPY --from=builder /install /usr/local
 # Copy application code
 COPY app/ ./app/
 COPY run_worker.py .
-COPY run_new_migrations.py .
 COPY migrations/ ./migrations/
 
 # Create temp directory
