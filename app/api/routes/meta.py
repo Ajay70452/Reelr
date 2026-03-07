@@ -83,9 +83,37 @@ def get_deepgram_voices():
 
 @router.get("/music", response_model=MusicResponse)
 def get_music(db: Session = Depends(get_db)):
-    """Get all available background music options"""
-    music = db.query(Music).all()
-    return {"music": music}
+    """Get all available background music options with preview URLs"""
+    from app.core.config import settings
+    from urllib.parse import quote
+
+    music_list = db.query(Music).all()
+
+    # S3 music file mapping (id -> S3 key)
+    MUSIC_FILES = {
+        "another_love": "music/Another Love.mp3",
+        "blade_runner_2049": "music/Blade Runner 2049.mp3",
+        "carman_prelude": "music/Carman Prelude.mp3",
+        "else_paris_extended": "music/Else - Paris Extended.mp3",
+        "else_paris": "music/Else - Paris.mp3",
+        "fur_elise": "music/Fur Elise.mp3",
+        "snowfall": "music/Snowfall.mp3",
+    }
+
+    bucket = settings.S3_BUCKET_NAME or "clipking-media"
+    region = settings.AWS_REGION or "us-east-1"
+    s3_base = f"https://{bucket}.s3.{region}.amazonaws.com/"
+
+    result = []
+    for m in music_list:
+        music_dict = MusicSchema.model_validate(m).model_dump()
+        # Build preview URL from S3
+        s3_key = MUSIC_FILES.get(m.id)
+        if s3_key:
+            music_dict["preview_url"] = s3_base + quote(s3_key)
+        result.append(music_dict)
+
+    return {"music": result}
 
 
 @router.get("/ai-presets", response_model=AIPresetsResponse)

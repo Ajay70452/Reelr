@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import uuid
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from decimal import Decimal
 
@@ -666,7 +666,7 @@ def finalize_video(job_data: Dict[str, Any]) -> Dict[str, Any]:
             "size_mb": size_mb,
             "resolution": resolution,
             "fallback_used": fallback_used,
-            "completed_at": datetime.utcnow().isoformat(),
+            "completed_at": datetime.now(timezone.utc).isoformat(),
         }
 
     except PermanentFailure as e:

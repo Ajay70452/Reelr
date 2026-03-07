@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
     
     # Application
-    APP_NAME: str = "ClipKing"
+    APP_NAME: str = "Reelr"
     APP_ENV: str = "development"
     API_V1_PREFIX: str = "/api/v1"
     SECRET_KEY: str
@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     # Supabase
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
+    SUPABASE_JWT_SECRET: str = ""  # Required for JWT verification
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
@@ -77,3 +78,27 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+
+def validate_production_settings() -> list[str]:
+    """Validate that all required settings are configured for production.
+    Returns a list of error messages (empty if all good)."""
+    errors = []
+    if settings.APP_ENV != "production":
+        return errors
+
+    if settings.SECRET_KEY in ("", "your-secret-key-here-change-this"):
+        errors.append("SECRET_KEY must be set to a strong random value")
+    if not settings.SUPABASE_JWT_SECRET:
+        errors.append("SUPABASE_JWT_SECRET is required for JWT verification")
+    if not settings.DATABASE_URL or "localhost" in settings.DATABASE_URL:
+        errors.append("DATABASE_URL must point to a production database")
+    if not settings.AWS_ACCESS_KEY_ID or settings.AWS_ACCESS_KEY_ID == "your_aws_access_key":
+        errors.append("AWS credentials must be configured for S3 storage")
+    if not settings.S3_BUCKET_NAME:
+        errors.append("S3_BUCKET_NAME must be set")
+    if not settings.SUPABASE_URL:
+        errors.append("SUPABASE_URL must be set")
+    if not settings.SUPABASE_KEY:
+        errors.append("SUPABASE_KEY must be set")
+    return errors

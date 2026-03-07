@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const API_TIMEOUT = parseInt(
-  process.env.NEXT_PUBLIC_API_TIMEOUT || "30000",
+  process.env.NEXT_PUBLIC_API_TIMEOUT || "60000",
   10
 );
 
@@ -128,8 +128,6 @@ export const api = {
   user: {
     me: () => apiClient.get("/api/v1/user/me"),
     getCredits: () => apiClient.get("/api/v1/user/credits"),
-    consumeCredits: (amount: number) =>
-      apiClient.post("/api/v1/user/credits/consume", { amount }),
   },
 
   // Video generation endpoints
@@ -182,10 +180,16 @@ export const api = {
     estimateCost: (script: string) => apiClient.post("/api/v1/script-to-video/estimate", null, { params: { script } }),
   },
 
+  // Library endpoints (unified video library)
+  library: {
+    getVideos: (params?: { limit?: number; offset?: number }) =>
+      apiClient.get("/api/v1/library/videos", { params }),
+  },
+
   // Trending Video endpoints (Kling 3.0)
   trendingVideo: {
-    generateTheme: (data: any) => apiClient.post("/api/v1/trending-video/generate-theme", data),
-    generateCustom: (data: any) => apiClient.post("/api/v1/trending-video/generate-custom", data),
+    generateTheme: (data: any) => apiClient.post("/api/v1/trending-video/generate-theme", data, { timeout: 120000 }),
+    generateCustom: (data: any) => apiClient.post("/api/v1/trending-video/generate-custom", data, { timeout: 120000 }),
     getJob: (jobId: string) => apiClient.get(`/api/v1/trending-video/job/${jobId}`),
     getThemes: () => apiClient.get("/api/v1/trending-video/themes"),
     getLimits: () => apiClient.get("/api/v1/trending-video/limits"),

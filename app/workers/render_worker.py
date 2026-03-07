@@ -159,11 +159,15 @@ def concat_videos_simple(
     """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    # Create concat file
+    def _esc(p: str) -> str:
+        """Escape single quotes in file paths for the ffmpeg concat demuxer."""
+        return p.replace("'", "'\\''")
+
+    # Create concat file with properly escaped paths
     concat_file = output_path.replace(".mp4", "_concat.txt")
-    with open(concat_file, "w") as f:
+    with open(concat_file, "w", encoding="utf-8") as f:
         for path in video_paths:
-            f.write(f"file '{path}'\n")
+            f.write(f"file '{_esc(path)}'\n")
 
     cmd = [
         "ffmpeg", "-y",

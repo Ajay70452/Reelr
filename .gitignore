@@ -17,4 +17,3 @@ setup_database.py
 test_queue.py
 
 .env
-.env.example

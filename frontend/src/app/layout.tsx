@@ -11,10 +11,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ClipKing - Create AI Videos in Minutes",
+  title: "Reelr - Create AI Videos in Minutes",
   description: "Generate professional AI-powered videos with motion graphics, cinematic effects, and custom presets. Pick a genre, choose a style, and let AI create your content.",
   keywords: ["AI video generator", "video creation", "AI videos", "motion graphics", "Sora AI", "video maker"],
-  authors: [{ name: "ClipKing" }],
+  authors: [{ name: "Reelr" }],
 };
 
 export const viewport: Viewport = {

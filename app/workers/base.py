@@ -6,7 +6,7 @@ Provides common functionality for all pipeline workers
 import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Callable, List
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 from rq import get_current_job
 from rq.job import Job
@@ -81,7 +81,7 @@ def worker_task(
                 # Update job metadata
                 if job:
                     job.meta["worker"] = worker_name
-                    job.meta["started_at"] = datetime.utcnow().isoformat()
+                    job.meta["started_at"] = datetime.now(timezone.utc).isoformat()
                     job.save_meta()
 
                 # Execute the actual worker function
@@ -173,7 +173,7 @@ def update_job_progress(progress: int, stage: str) -> None:
     if job:
         job.meta["progress"] = progress
         job.meta["stage"] = stage
-        job.meta["updated_at"] = datetime.utcnow().isoformat()
+        job.meta["updated_at"] = datetime.now(timezone.utc).isoformat()
         job.save_meta()
 
 

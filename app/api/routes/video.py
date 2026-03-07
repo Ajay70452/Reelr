@@ -5,8 +5,8 @@ Handles video job creation, status polling, and video retrieval
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, func
-from datetime import datetime, timedelta
+from sqlalchemy import and_, func, update
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import uuid
 
@@ -55,7 +55,7 @@ def check_rate_limit(user: User, db: Session) -> tuple[bool, int]:
     daily_limit = RATE_LIMITS.get(user.plan, 10)
 
     # Count jobs created in the last 24 hours
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
     jobs_today = db.query(func.count(VideoJob.id)).filter(
         and_(
             VideoJob.user_id == user.id,
@@ -196,7 +196,13 @@ def generate_video(
         db.add(credit)
         db.commit()
 
-    if credit.credits_left < credits_required:
+    # 5. Deduct credits atomically (prevents race conditions)
+    result = db.execute(
+        update(Credit)
+        .where(Credit.user_id == user.id, Credit.credits_left >= credits_required)
+        .values(credits_left=Credit.credits_left - credits_required)
+    )
+    if result.rowcount == 0:
         raise HTTPException(
             status_code=402,
             detail={
@@ -206,9 +212,6 @@ def generate_video(
                 "purchase_url": "/credits"
             }
         )
-
-    # 5. Deduct credits immediately
-    credit.credits_left -= credits_required
 
     # 6. Create database entry
     job_id = uuid.uuid4()
@@ -409,41 +412,6 @@ def cancel_video_job(
     }
 
 
-@router.get("/{video_id}", response_model=VideoResponse)
-def get_video(
-    video_id: str,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get metadata for a completed video.
-    """
-    # Parse video_id
-    try:
-        video_uuid = uuid.UUID(video_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid video ID format")
-
-    video = db.query(Video).filter(
-        and_(
-            Video.id == video_uuid,
-            Video.user_id == user.id
-        )
-    ).first()
-
-    if not video:
-        raise HTTPException(status_code=404, detail="Video not found")
-
-    return VideoResponse(
-        id=video.id,
-        video_url=video.video_url,
-        thumbnail_url=video.thumbnail_url,
-        duration=video.duration,
-        resolution=video.resolution,
-        created_at=video.created_at,
-    )
-
-
 @router.get("/list", response_model=List[VideoResponse])
 def list_videos(
     user: User = Depends(get_current_user),
@@ -544,3 +512,39 @@ def get_user_limits(
             "available": credits_available,
         }
     }
+
+
+# NOTE: /{video_id} must be LAST to avoid matching "list", "jobs", "limits" as video_id
+@router.get("/{video_id}", response_model=VideoResponse)
+def get_video(
+    video_id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get metadata for a completed video.
+    """
+    # Parse video_id
+    try:
+        video_uuid = uuid.UUID(video_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid video ID format")
+
+    video = db.query(Video).filter(
+        and_(
+            Video.id == video_uuid,
+            Video.user_id == user.id
+        )
+    ).first()
+
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    return VideoResponse(
+        id=video.id,
+        video_url=video.video_url,
+        thumbnail_url=video.thumbnail_url,
+        duration=video.duration,
+        resolution=video.resolution,
+        created_at=video.created_at,
+    )

@@ -5,7 +5,7 @@ Handles video generation job lifecycle and pipeline orchestration
 
 import uuid
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from rq.job import Job
 
@@ -103,7 +103,7 @@ def create_video_job(
             "auto_effects": True,
             "auto_captions": True,
         },
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "stage": PipelineStage.QUEUED.value,
         "progress": 0,
         "fallback_used": False,
@@ -208,7 +208,7 @@ def update_job_stage(job: Job, stage: PipelineStage) -> None:
     """Update the current stage of a job"""
     job.meta["stage"] = stage.value
     job.meta["progress"] = STAGE_PROGRESS.get(stage, 0)
-    job.meta["updated_at"] = datetime.utcnow().isoformat()
+    job.meta["updated_at"] = datetime.now(timezone.utc).isoformat()
     job.save_meta()
 
 

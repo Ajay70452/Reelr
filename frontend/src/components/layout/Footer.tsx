@@ -11,7 +11,7 @@ export default function Footer() {
                             <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-lg flex items-center justify-center">
                                 <span className="text-white font-bold text-xl">C</span>
                             </div>
-                            <span className="text-xl font-bold text-white">ClipKing</span>
+                            <span className="text-xl font-bold text-white">Reelr</span>
                         </div>
                         <p className="text-sm text-gray-400">
                             Create AI-powered videos in minutes with cutting-edge technology.
@@ -33,7 +33,7 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/create" className="text-sm text-gray-400 hover:text-accent transition-colors">
+                                <Link href="/trending" className="text-sm text-gray-400 hover:text-accent transition-colors">
                                     Create Video
                                 </Link>
                             </li>
@@ -83,7 +83,7 @@ export default function Footer() {
                 {/* Bottom */}
                 <div className="mt-12 pt-8 border-t border-[#1D222B]">
                     <p className="text-center text-sm text-gray-400">
-                        © {new Date().getFullYear()} ClipKing. All rights reserved.
+                        © {new Date().getFullYear()} Reelr. All rights reserved.
                     </p>
                 </div>
             </div>

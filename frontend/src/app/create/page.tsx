@@ -10,6 +10,7 @@ import StepIndicator from '@/components/wizard/StepIndicator';
 import GenreCard from '@/components/wizard/GenreCard';
 import PresetCard from '@/components/wizard/PresetCard';
 import TypeVoiceCard from '@/components/wizard/VoiceCard';
+import MusicCard from '@/components/wizard/MusicCard';
 import Select from '@/components/ui/Select';
 import Toggle from '@/components/ui/Toggle';
 import Input from '@/components/ui/Input';
@@ -193,8 +194,7 @@ export default function CreateVideoPage() {
                             {style.display_name}
                         </h3>
                         <p className="text-gray-400 text-sm mb-4">{style.description}</p>
-                        <div className={`px-3 py-1 inline-block rounded-full text-xs font-semibold ${
-                            style.type === 'cinematic'
+                        <div className={`px-3 py-1 inline-block rounded-full text-xs font-semibold ${style.type === 'cinematic'
                                 ? 'bg-purple-500/20 text-purple-400'
                                 : style.type === 'stock'
                                     ? 'bg-green-500/20 text-green-400'
@@ -276,34 +276,15 @@ export default function CreateVideoPage() {
                 {/* Music Selection */}
                 <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-white">Background Music</h3>
-                    <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-                        <Select
-                            label="Select Mood / Genre"
-                            options={[
-                                { value: '0', label: 'Select music...' },
-                                ...(musicTracks?.map(m => ({
-                                    value: m.id,
-                                    label: `${m.display_name} (${m.mood})`
-                                })) || [])
-                            ]}
-                            value={musicId || '0'}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                if (value && value !== '0') setMusic(value);
-                                else setMusic(null);
-                            }}
-                        />
-
-                        {music && (
-                            <div className="mt-4 p-4 bg-black/50 rounded-lg border border-gray-800">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <div className="text-white font-medium">{music.display_name}</div>
-                                        <div className="text-xs text-gray-400">{music.genre} • {music.duration}s</div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        {musicTracks?.map((m) => (
+                            <MusicCard
+                                key={m.id}
+                                music={m}
+                                isSelected={musicId === m.id}
+                                onClick={() => setMusic(m.id)}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>

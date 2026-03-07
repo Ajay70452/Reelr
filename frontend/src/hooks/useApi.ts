@@ -23,7 +23,26 @@ import type {
   GenerateTrendingCustomRequest,
   TrendingVideoJob,
   TrendingTheme,
+  LibraryVideo,
 } from "@/types";
+
+// ============================================
+// Library Hooks (Unified Video Library)
+// ============================================
+export function useLibraryVideos() {
+  return useQuery<LibraryVideo[]>({
+    queryKey: ["libraryVideos"],
+    queryFn: async () => {
+      try {
+        const response = await api.library.getVideos({ limit: 100 });
+        return response.data.videos || [];
+      } catch (error) {
+        console.warn('Failed to fetch library videos');
+        return [];
+      }
+    },
+  });
+}
 
 // Metadata Hooks
 export function useGenres() {
@@ -185,13 +204,15 @@ export function useMusic() {
         return response.data.music;
       } catch (error) {
         console.warn('Using mock music data - backend not available');
+        const s3Base = "https://clipking-media.s3.us-east-1.amazonaws.com/music/";
         return [
-          { id: 'calm_ambient', display_name: 'Calm Ambient', genre: 'ambient', mood: 'calm', duration: 60, is_premium: false },
-          { id: 'energetic_beat', display_name: 'Energetic Beat', genre: 'upbeat', mood: 'energetic', duration: 60, is_premium: false },
-          { id: 'emotional_piano', display_name: 'Emotional Piano', genre: 'emotional', mood: 'emotional', duration: 60, is_premium: false },
-          { id: 'trap_beat', display_name: 'Trap Beat', genre: 'trap', mood: 'intense', duration: 60, is_premium: false },
-          { id: 'lo_fi_chill', display_name: 'Lo-Fi Chill', genre: 'lo-fi', mood: 'chill', duration: 60, is_premium: false },
-          { id: 'epic_cinematic', display_name: 'Epic Cinematic', genre: 'cinematic', mood: 'epic', duration: 60, is_premium: true },
+          { id: 'another_love', display_name: 'Another Love', genre: 'pop', mood: 'emotional', duration: 60, is_premium: false, preview_url: `${s3Base}Another%20Love.mp3` },
+          { id: 'blade_runner_2049', display_name: 'Blade Runner 2049', genre: 'cinematic', mood: 'epic', duration: 60, is_premium: true, preview_url: `${s3Base}Blade%20Runner%202049.mp3` },
+          { id: 'carman_prelude', display_name: 'Carman Prelude', genre: 'classical', mood: 'dramatic', duration: 60, is_premium: false, preview_url: `${s3Base}Carman%20Prelude.mp3` },
+          { id: 'else_paris_extended', display_name: 'Else - Paris Extended', genre: 'electronic', mood: 'chill', duration: 60, is_premium: false, preview_url: `${s3Base}Else%20-%20Paris%20Extended.mp3` },
+          { id: 'else_paris', display_name: 'Else - Paris', genre: 'electronic', mood: 'chill', duration: 60, is_premium: false, preview_url: `${s3Base}Else%20-%20Paris.mp3` },
+          { id: 'fur_elise', display_name: 'Fur Elise', genre: 'classical', mood: 'calm', duration: 60, is_premium: false, preview_url: `${s3Base}Fur%20Elise.mp3` },
+          { id: 'snowfall', display_name: 'Snowfall', genre: 'ambient', mood: 'calm', duration: 60, is_premium: false, preview_url: `${s3Base}Snowfall.mp3` },
           { id: 'none', display_name: 'No Music', genre: 'none', mood: 'none', duration: 0, is_premium: false },
         ];
       }

@@ -39,41 +39,6 @@ def get_user_credits(
     }
 
 
-@router.post("/credits/consume")
-def consume_credits(
-    amount: int,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Consume credits for a job"""
-    credit = db.query(Credit).filter(Credit.user_id == user.id).first()
-    
-    if not credit or credit.credits_left < amount:
-        raise HTTPException(status_code=402, detail="Insufficient credits")
-    
-    credit.credits_left -= amount
-    db.commit()
-    
-    return {
-        "success": True,
-        "remaining": credit.credits_left
-    }
-
-
-@router.post("/credits/refund")
-def refund_credits(
-    amount: int,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Refund credits (used when job fails)"""
-    credit = db.query(Credit).filter(Credit.user_id == user.id).first()
-    
-    if credit:
-        credit.credits_left += amount
-        db.commit()
-    
-    return {
-        "success": True,
-        "remaining": credit.credits_left
-    }
+# NOTE: /credits/consume and /credits/refund endpoints have been removed.
+# Credit operations are now handled internally by the video generation pipeline
+# (see video.py and ai_video.py) to prevent users from self-refunding credits.

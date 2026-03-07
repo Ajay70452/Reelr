@@ -105,7 +105,7 @@ export default function DashboardPage() {
                                 Choose from 12+ presets and let AI handle the rest
                             </p>
                         </div>
-                        <Link href="/create">
+                        <Link href="/trending">
                             <Button variant="primary" size="lg">
                                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -139,7 +139,7 @@ export default function DashboardPage() {
                                 <p className="text-gray-400 mb-6">
                                     Create your first AI-powered video to get started
                                 </p>
-                                <Link href="/create">
+                                <Link href="/trending">
                                     <Button variant="primary">
                                         Create Your First Video
                                     </Button>

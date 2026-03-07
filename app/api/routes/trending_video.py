@@ -10,7 +10,7 @@ Two flows:
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import uuid
 import os
@@ -109,7 +109,7 @@ TRENDING_THEMES = {
 def check_rate_limit(user: User, db: Session) -> tuple[bool, int]:
     """Check daily rate limit for trending video."""
     daily_limit = RATE_LIMITS.get(user.plan, 3)
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
     jobs_today = db.query(func.count(TrendingVideoJob.id)).filter(
         and_(
             TrendingVideoJob.user_id == user.id,
@@ -203,7 +203,7 @@ def upload_video_to_fal(video_data: str) -> Optional[str]:
 # ============================================
 # Background Task — Kling 2.6 Motion Control
 # ============================================
-async def generate_trending_video_task(
+def generate_trending_video_task(
     job_id: uuid.UUID,
     image_url: str,
     motion_video_url: str,

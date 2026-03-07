@@ -321,6 +321,19 @@ export interface TrendingTheme {
   preview_url?: string;
 }
 
+// Library Types (unified video library)
+export interface LibraryVideo {
+  id: string;
+  source: "script_to_video" | "ai_video" | "trending_video" | "classic";
+  video_url: string;
+  thumbnail_url?: string;
+  duration?: number;
+  aspect_ratio: string;
+  resolution: string;
+  title: string;
+  created_at: string;
+}
+
 // UI State Types
 
 export interface WizardStep {

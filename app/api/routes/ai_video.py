@@ -5,8 +5,8 @@ Handles AI video generation using Fal.ai (Sora 2, Veo 3, Kling 2.5, LTX-2)
 
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, func
-from datetime import datetime, timedelta
+from sqlalchemy import and_, func, update
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import uuid
 import os
@@ -57,7 +57,7 @@ def check_rate_limit(user: User, db: Session) -> tuple[bool, int]:
     """Check if user has exceeded their daily rate limit."""
     daily_limit = RATE_LIMITS.get(user.plan, 5)
 
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
     jobs_today = db.query(func.count(AIVideoJob.id)).filter(
         and_(
             AIVideoJob.user_id == user.id,
@@ -380,8 +380,21 @@ async def generate_ai_video(
     if final_negative:
         validated_options["negative_prompt"] = final_negative
 
-    # Deduct credits
-    credit.credits_left -= credit_cost
+    # Deduct credits atomically (prevents race conditions)
+    deduct_result = db.execute(
+        update(Credit)
+        .where(Credit.user_id == user.id, Credit.credits_left >= credit_cost)
+        .values(credits_left=Credit.credits_left - credit_cost)
+    )
+    if deduct_result.rowcount == 0:
+        raise HTTPException(
+            status_code=402,
+            detail={
+                "error": "Insufficient credits",
+                "required": credit_cost,
+                "available": credit.credits_left,
+            }
+        )
 
     # Create job record (store original user prompt for reference)
     job_id = uuid.uuid4()

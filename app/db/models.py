@@ -119,6 +119,8 @@ class Music(Base):
     id = Column(String, primary_key=True)
     display_name = Column(String, nullable=False)
     category = Column(String)
+    genre = Column(String)
+    mood = Column(String)
     is_premium = Column(Boolean, default=False)
 
     # Relationships

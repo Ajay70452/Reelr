@@ -10,16 +10,17 @@ export default function Header() {
     const { user, logout } = useUserStore();
 
     const isActive = (path: string) => pathname === path;
+    const isDashboardRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/library') || pathname.startsWith('/trending') || pathname.startsWith('/generate') || pathname.startsWith('/automations');
 
     return (
-        <header className="sticky top-0 z-40 w-full border-b border-[#1D222B] bg-[#0F1115]/95 backdrop-blur-sm">
+        <header className={`sticky top-0 z-40 w-full border-b border-[#1D222B] bg-[#0F1115]/95 backdrop-blur-sm ${user && isDashboardRoute ? 'hidden xl:block' : ''}`}>
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold text-xl">C</span>
                     </div>
-                    <span className="text-xl font-bold text-white">ClipKing</span>
+                    <span className="text-xl font-bold text-white">Reelr</span>
                 </Link>
 
                 {/* Navigation */}
@@ -41,8 +42,8 @@ export default function Header() {
                                 Library
                             </Link>
                             <Link
-                                href="/create"
-                                className={`text-sm font-medium transition-colors ${isActive('/create') ? 'text-accent' : 'text-gray-300 hover:text-white'
+                                href="/trending"
+                                className={`text-sm font-medium transition-colors ${pathname.startsWith('/trending') || pathname.startsWith('/generate') ? 'text-accent' : 'text-gray-300 hover:text-white'
                                     }`}
                             >
                                 Create
@@ -73,14 +74,7 @@ export default function Header() {
                                 <span className="text-sm font-medium text-white">{user.credits}</span>
                             </div>
 
-                            {/* User menu */}
-                            <button
-                                onClick={logout}
-                                className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-                            >
-                                Logout
-                            </button>
-                        </>
+                            {/* Right side items */}                        </>
                     ) : (
                         <>
                             <Link href="/auth/login">

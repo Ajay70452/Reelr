@@ -20,7 +20,7 @@ export default function WelcomeModal() {
     const handleGetStarted = () => {
         localStorage.setItem('hasSeenWelcome', 'true');
         setIsOpen(false);
-        router.push('/create');
+        router.push('/trending');
     };
 
     const handleClose = () => {
@@ -29,7 +29,7 @@ export default function WelcomeModal() {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title="Welcome to ClipKing! 🎬">
+        <Modal isOpen={isOpen} onClose={handleClose} title="Welcome to Reelr! 🎬">
             <div className="space-y-4">
                 <p className="text-gray-300">
                     You're all set to create amazing AI-powered videos! Here's what you can do:

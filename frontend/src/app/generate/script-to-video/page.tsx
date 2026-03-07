@@ -18,6 +18,7 @@ import {
     DeepgramVoice,
 } from '@/hooks/useApi';
 import PresetSelectorModal from '@/components/generator/PresetSelectorModal';
+import MusicCard from '@/components/wizard/MusicCard';
 import type { AIPreset, Music } from '@/types';
 import { resolveMediaUrl } from '@/lib/api';
 
@@ -158,13 +159,12 @@ function MediaTypeCard({ id, name, icon, isSelected, isLocked, onSelect }: {
         <button
             onClick={() => !isLocked && onSelect()}
             disabled={isLocked}
-            className={`relative flex flex-col items-center justify-center p-4 rounded-xl border transition-all ${
-                isSelected
-                    ? 'bg-accent/10 border-accent text-white'
-                    : isLocked
-                        ? 'bg-gray-900/30 border-gray-800 text-gray-600 cursor-not-allowed'
-                        : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
-            }`}
+            className={`relative flex flex-col items-center justify-center p-4 rounded-xl border transition-all ${isSelected
+                ? 'bg-accent/10 border-accent text-white'
+                : isLocked
+                    ? 'bg-gray-900/30 border-gray-800 text-gray-600 cursor-not-allowed'
+                    : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
+                }`}
         >
             {isLocked && (
                 <div className="absolute top-2 right-2">
@@ -176,9 +176,8 @@ function MediaTypeCard({ id, name, icon, isSelected, isLocked, onSelect }: {
                     <CheckIcon className="w-3 h-3 text-white" />
                 </div>
             )}
-            <div className={`w-10 h-10 mb-2 flex items-center justify-center rounded-lg ${
-                isSelected ? 'bg-accent/20' : 'bg-gray-800'
-            }`}>
+            <div className={`w-10 h-10 mb-2 flex items-center justify-center rounded-lg ${isSelected ? 'bg-accent/20' : 'bg-gray-800'
+                }`}>
                 {icon}
             </div>
             <span className="text-sm font-medium">{name}</span>
@@ -196,11 +195,10 @@ function PresetCard({ preset, isSelected, onSelect }: {
     return (
         <button
             onClick={onSelect}
-            className={`relative overflow-hidden rounded-xl border transition-all ${
-                isSelected
-                    ? 'border-accent ring-2 ring-accent/30'
-                    : 'border-gray-800 hover:border-gray-700'
-            }`}
+            className={`relative overflow-hidden rounded-xl border transition-all ${isSelected
+                ? 'border-accent ring-2 ring-accent/30'
+                : 'border-gray-800 hover:border-gray-700'
+                }`}
         >
             {preset.thumbnail_url ? (
                 <img
@@ -237,15 +235,13 @@ function VoiceCard({ voice, isSelected, onSelect }: {
     return (
         <button
             onClick={onSelect}
-            className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                isSelected
-                    ? 'bg-accent/10 border-accent'
-                    : 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
-            }`}
+            className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isSelected
+                ? 'bg-accent/10 border-accent'
+                : 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
+                }`}
         >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isSelected ? 'bg-accent/20' : 'bg-gray-800'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-accent/20' : 'bg-gray-800'
+                }`}>
                 {isNoVoice ? (
                     <span className="text-gray-500 text-lg">🔇</span>
                 ) : (
@@ -269,40 +265,6 @@ function VoiceCard({ voice, isSelected, onSelect }: {
     );
 }
 
-// Music Card
-function MusicCard({ music, isSelected, onSelect }: {
-    music: Music;
-    isSelected: boolean;
-    onSelect: () => void;
-}) {
-    return (
-        <button
-            onClick={onSelect}
-            className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                isSelected
-                    ? 'bg-accent/10 border-accent'
-                    : 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
-            }`}
-        >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isSelected ? 'bg-accent/20' : 'bg-gray-800'
-            }`}>
-                <MusicalNoteIcon className={`w-5 h-5 ${isSelected ? 'text-accent' : 'text-gray-400'}`} />
-            </div>
-            <div className="flex-1 text-left">
-                <p className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-300'}`}>
-                    {music.display_name}
-                </p>
-                <p className="text-xs text-gray-500 capitalize">{music.category || 'General'}</p>
-            </div>
-            {isSelected && (
-                <div className="w-5 h-5 bg-accent rounded-full flex items-center justify-center">
-                    <CheckIcon className="w-3 h-3 text-white" />
-                </div>
-            )}
-        </button>
-    );
-}
 
 // Aspect Ratio Button
 function AspectRatioButton({ ratio, isSelected, onSelect }: {
@@ -324,11 +286,10 @@ function AspectRatioButton({ ratio, isSelected, onSelect }: {
     return (
         <button
             onClick={onSelect}
-            className={`flex-1 p-3 rounded-xl border transition-all ${
-                isSelected
-                    ? 'bg-accent/10 border-accent text-white'
-                    : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
-            }`}
+            className={`flex-1 p-3 rounded-xl border transition-all ${isSelected
+                ? 'bg-accent/10 border-accent text-white'
+                : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
+                }`}
         >
             <div className="text-sm font-semibold">{labels[ratio]}</div>
             <div className="text-xs text-gray-500">{descriptions[ratio]}</div>
@@ -623,13 +584,11 @@ Her story changed the ancient world forever.`}
                                         </div>
                                         <button
                                             onClick={() => setConsistentCharacter(!consistentCharacter)}
-                                            className={`relative w-12 h-7 rounded-full transition-colors ${
-                                                consistentCharacter ? 'bg-accent' : 'bg-gray-700'
-                                            }`}
+                                            className={`relative w-12 h-7 rounded-full transition-colors ${consistentCharacter ? 'bg-accent' : 'bg-gray-700'
+                                                }`}
                                         >
-                                            <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                                                consistentCharacter ? 'translate-x-5' : ''
-                                            }`} />
+                                            <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${consistentCharacter ? 'translate-x-5' : ''
+                                                }`} />
                                         </button>
                                     </div>
                                 </div>
@@ -652,7 +611,7 @@ Her story changed the ancient world forever.`}
                                             icon={<FilmIcon className="w-5 h-5 text-gray-500" />}
                                             isSelected={false}
                                             isLocked={true}
-                                            onSelect={() => {}}
+                                            onSelect={() => { }}
                                         />
                                         <MediaTypeCard
                                             id="stock_video"
@@ -660,7 +619,7 @@ Her story changed the ancient world forever.`}
                                             icon={<VideoIcon className="w-5 h-5 text-gray-500" />}
                                             isSelected={false}
                                             isLocked={true}
-                                            onSelect={() => {}}
+                                            onSelect={() => { }}
                                         />
                                     </div>
                                 </div>
@@ -722,16 +681,16 @@ Her story changed the ancient world forever.`}
                                     <SectionHeader title="Background Music" subtitle="Select background music (optional)" />
                                     <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2">
                                         <MusicCard
-                                            music={{ id: 'none', display_name: 'No Music', category: 'none' } as Music}
+                                            music={{ id: 'none', display_name: 'No Music', category: 'none', genre: 'none', mood: 'none' } as Music}
                                             isSelected={selectedMusic === null || selectedMusic === 'none'}
-                                            onSelect={() => setSelectedMusic(null)}
+                                            onClick={() => setSelectedMusic(null)}
                                         />
                                         {musicList.filter(m => m.id !== 'none').map((music) => (
                                             <MusicCard
                                                 key={music.id}
                                                 music={music}
                                                 isSelected={selectedMusic === music.id}
-                                                onSelect={() => setSelectedMusic(music.id)}
+                                                onClick={() => setSelectedMusic(music.id)}
                                             />
                                         ))}
                                     </div>
@@ -778,11 +737,10 @@ Her story changed the ancient world forever.`}
                                             <button
                                                 key={d}
                                                 onClick={() => setDuration(d)}
-                                                className={`flex-1 p-3 rounded-xl border transition-all ${
-                                                    duration === d
-                                                        ? 'bg-accent/10 border-accent text-white'
-                                                        : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
-                                                }`}
+                                                className={`flex-1 p-3 rounded-xl border transition-all ${duration === d
+                                                    ? 'bg-accent/10 border-accent text-white'
+                                                    : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
+                                                    }`}
                                             >
                                                 <div className="text-sm font-semibold">{d}s</div>
                                                 <div className="text-xs text-gray-500">{scenes} scenes</div>
@@ -813,11 +771,10 @@ Her story changed the ancient world forever.`}
                             <button
                                 onClick={handleGenerate}
                                 disabled={!script.trim() || isGenerating || (user?.credits ?? 0) < creditCost}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-                                    script.trim() && !isGenerating && (user?.credits ?? 0) >= creditCost
-                                        ? 'bg-accent text-white hover:bg-accent/90'
-                                        : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                                }`}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${script.trim() && !isGenerating && (user?.credits ?? 0) >= creditCost
+                                    ? 'bg-accent text-white hover:bg-accent/90'
+                                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                    }`}
                             >
                                 {isGenerating ? (
                                     <>

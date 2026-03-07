@@ -4,7 +4,7 @@ Monitor Redis and worker health
 """
 
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from rq import Worker
 from rq.job import Job
 
@@ -36,7 +36,7 @@ def get_health_status() -> Dict[str, Any]:
 
     return {
         "status": "healthy" if redis_healthy and len(workers) > 0 else "degraded" if redis_healthy else "unhealthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "redis": redis_info,
         "queues": {
             "total_queued": total_queued,
@@ -161,7 +161,7 @@ def get_worker_health_alerts() -> List[Dict[str, Any]]:
                 })
 
     # Check for stale workers (no heartbeat in last 5 minutes)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     for worker in workers:
         if worker.get("last_heartbeat"):
             last_heartbeat = datetime.fromisoformat(worker["last_heartbeat"])

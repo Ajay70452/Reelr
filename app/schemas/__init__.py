@@ -94,7 +94,10 @@ class MusicSchema(BaseModel):
     id: str
     display_name: str
     category: Optional[str] = None
+    genre: Optional[str] = None
+    mood: Optional[str] = None
     is_premium: bool
+    preview_url: Optional[str] = None
     
     class Config:
         from_attributes = True

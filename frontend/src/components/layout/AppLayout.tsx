@@ -103,7 +103,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <div className="w-8 h-8 bg-[#C8FF4D] rounded-lg flex items-center justify-center shadow-lg shadow-[rgba(200,255,77,0.2)]">
                         <span className="text-[#1C1F26] font-bold text-sm">C</span>
                     </div>
-                    <span className="text-lg font-bold text-white">ClipKing</span>
+                    <span className="text-lg font-bold text-white">Reelr</span>
                 </Link>
                 <button
                     onClick={() => setSidebarOpen(true)}
@@ -128,9 +128,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                             <Link
                                 key={tab.href}
                                 href={tab.href}
-                                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] py-1 transition-colors ${
-                                    active ? 'text-[#C8FF4D]' : 'text-[#A1A8B8]'
-                                }`}
+                                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] py-1 transition-colors ${active ? 'text-[#C8FF4D]' : 'text-[#A1A8B8]'
+                                    }`}
                             >
                                 <Icon className="w-5 h-5" />
                                 <span className="text-[10px] font-medium">{tab.label}</span>

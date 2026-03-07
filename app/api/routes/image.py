@@ -6,7 +6,7 @@ Handles image generation jobs using Fal.ai
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import uuid
 import os
@@ -51,7 +51,7 @@ def check_rate_limit(user: User, db: Session) -> tuple[bool, int]:
     """Check if user has exceeded their daily rate limit."""
     daily_limit = RATE_LIMITS.get(user.plan, 20)
 
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
     jobs_today = db.query(func.count(ImageJob.id)).filter(
         and_(
             ImageJob.user_id == user.id,

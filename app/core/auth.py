@@ -7,7 +7,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Optional
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 
 from app.core.config import settings
@@ -21,9 +21,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Create JWT access token"""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(hours=24)
+        expire = datetime.now(timezone.utc) + timedelta(hours=24)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
@@ -32,19 +32,36 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def verify_supabase_token(token: str) -> dict:
     """
-    Decode Supabase JWT token.
-    In production, you should verify with Supabase's JWT secret.
-    For now, we decode without verification to extract the user info.
+    Decode and verify Supabase JWT token.
+    Uses SUPABASE_JWT_SECRET for signature verification in production.
     """
     try:
-        # Decode without verification - Supabase tokens are verified by Supabase
-        # The token is already validated by the client before being sent
-        payload = jwt.decode(token, options={"verify_signature": False})
+        if settings.SUPABASE_JWT_SECRET:
+            # Production: verify signature with Supabase JWT secret
+            payload = jwt.decode(
+                token,
+                settings.SUPABASE_JWT_SECRET,
+                algorithms=["HS256"],
+                audience="authenticated",
+            )
+        else:
+            # Development only: decode without verification
+            import logging
+            logging.getLogger(__name__).warning(
+                "SUPABASE_JWT_SECRET not set — JWT signature verification DISABLED. "
+                "Set SUPABASE_JWT_SECRET before deploying to production!"
+            )
+            payload = jwt.decode(token, options={"verify_signature": False})
         return payload
-    except jwt.InvalidTokenError as e:
+    except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Could not decode token: {str(e)}"
+            detail="Token has expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token"
         )
 
 

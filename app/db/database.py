@@ -22,6 +22,8 @@ if "supabase" in DATABASE_URL:
     engine = create_engine(
         DATABASE_URL,
         poolclass=NullPool,
+        pool_pre_ping=True,
+        pool_recycle=300,
         echo=False
     )
 else:

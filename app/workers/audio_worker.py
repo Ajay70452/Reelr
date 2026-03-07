@@ -56,13 +56,13 @@ OPENAI_VOICES = {
 
 # Default music library (URLs or S3 paths)
 MUSIC_LIBRARY = {
-    "epic": "music/epic_cinematic.mp3",
-    "motivational": "music/motivational_upbeat.mp3",
-    "calm": "music/calm_ambient.mp3",
-    "dramatic": "music/dramatic_tension.mp3",
-    "corporate": "music/corporate_positive.mp3",
-    "dark": "music/dark_mysterious.mp3",
-    "uplifting": "music/uplifting_inspiring.mp3",
+    "another_love": "music/Another Love.mp3",
+    "blade_runner_2049": "music/Blade Runner 2049.mp3",
+    "carman_prelude": "music/Carman Prelude.mp3",
+    "else_paris_extended": "music/Else - Paris Extended.mp3",
+    "else_paris": "music/Else - Paris.mp3",
+    "fur_elise": "music/Fur Elise.mp3",
+    "snowfall": "music/Snowfall.mp3",
     "none": None,
 }
 
@@ -349,54 +349,151 @@ def normalize_audio(
         return output_path
 
 
+def build_duck_filter(
+    speech_regions: List[Tuple[float, float]],
+    buffer: float = 0.3,
+    duck_level: float = 0.12,
+    base_level: float = 0.25,
+) -> str:
+    """
+    Build a dynamic FFmpeg volume filter expression that ducks music during speech.
+
+    During detected speech windows: volume = duck_level (default 0.12 = ~-18dB)
+    During gaps between speech:     volume = base_level  (default 0.25 = ~-12dB)
+    Transitions are smoothed by ±buffer seconds on each side.
+
+    Args:
+        speech_regions: List of (start_sec, end_sec) tuples from word_timings
+        buffer: Seconds of buffer to add around each speech region for smooth fade
+        duck_level: Volume ratio during speech (0.0 - 1.0)
+        base_level: Volume ratio during gaps (0.0 - 1.0)
+
+    Returns:
+        FFmpeg volume filter string, e.g.:
+        "volume='if(between(t,1.00,4.50)+between(t,6.00,10.20), 0.12, 0.25)':eval=frame"
+    """
+    if not speech_regions:
+        # No word timing data — just use the base level (music not too loud)
+        return f"volume={base_level}"
+
+    conditions = []
+    for start, end in speech_regions:
+        s = max(0.0, start - buffer)
+        e = end + buffer
+        conditions.append(f"between(t,{s:.2f},{e:.2f})")
+
+    condition_expr = "+".join(conditions)
+    return f"volume='if({condition_expr}, {duck_level}, {base_level})':eval=frame"
+
+
+def _extract_speech_regions(word_timings: List[Dict], gap_threshold: float = 0.5) -> List[Tuple[float, float]]:
+    """
+    Merge word-level timings into speech regions by grouping words
+    that are less than gap_threshold seconds apart.
+
+    Args:
+        word_timings: List of dicts with 'start' and 'end' keys
+        gap_threshold: Max gap (seconds) between words to be considered same region
+
+    Returns:
+        List of (region_start, region_end) tuples
+    """
+    if not word_timings:
+        return []
+
+    regions = []
+    region_start = word_timings[0].get("start", 0)
+    region_end = word_timings[0].get("end", 0)
+
+    for word in word_timings[1:]:
+        word_start = word.get("start", region_end)
+        word_end = word.get("end", word_start)
+        if word_start - region_end < gap_threshold:
+            # Same speech region — extend it
+            region_end = word_end
+        else:
+            # Gap detected — finalize region and start a new one
+            regions.append((region_start, region_end))
+            region_start = word_start
+            region_end = word_end
+
+    regions.append((region_start, region_end))
+    return regions
+
+
 def apply_music_ducking(
     voiceover_path: str,
     music_path: str,
     output_path: str,
-    duck_level: float = -12.0,
-    attack_time: float = 0.3,
-    release_time: float = 0.5,
+    word_timings: Optional[List[Dict]] = None,
+    duck_level: float = 0.12,
+    base_level: float = 0.25,
 ) -> str:
     """
-    Mix voiceover with background music, applying ducking.
+    Mix voiceover with background music, applying smart time-aware ducking.
+
+    Music is looped to match the voiceover duration using ffmpeg's aloop filter.
+    Volume is dynamically reduced during speech regions using a volume expression
+    built from actual word timing data (not a fixed volume reduction).
 
     Args:
         voiceover_path: Path to voiceover audio
         music_path: Path to background music
         output_path: Path for mixed output
-        duck_level: How much to reduce music volume during speech (dB)
-        attack_time: How fast to duck (seconds)
-        release_time: How fast to return (seconds)
+        word_timings: Word-level timing list from TTS (for precise ducking zones)
+        duck_level: Volume ratio during speech (e.g. 0.12 ≈ very quiet)
+        base_level: Volume ratio during gaps (e.g. 0.25 ≈ audible but not overpowering)
 
     Returns:
         Path to mixed audio
     """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    # Get voiceover duration
+    # Get voiceover duration for music trimming
     vo_duration = get_audio_duration(voiceover_path)
 
-    # Use sidechaincompress for ducking effect
-    # Voiceover triggers the compressor on music
+    # Build smart duck filter from word timings if available
+    if word_timings:
+        speech_regions = _extract_speech_regions(word_timings)
+        duck_filter = build_duck_filter(speech_regions, duck_level=duck_level, base_level=base_level)
+    else:
+        # No timing data — fallback to static base level
+        duck_filter = f"volume={base_level}"
+
+    logger.info(f"Mixing audio with duck filter (vo_duration={vo_duration:.1f}s)")
+
+    # Build filter_complex:
+    # [1:a] = music stream
+    #   aloop=-1 : loop indefinitely
+    #   atrim=0:{vo_duration} : cut to exact voiceover length so mix ends cleanly
+    #   {duck_filter} : apply smart volume ducking
+    # [0:a][music_ducked] amix : mix voiceover with ducked music
+    music_filter = (
+        f"[1:a]aloop=loop=-1:size=2e+09,"
+        f"atrim=0:{vo_duration + 1.0},"
+        f"{duck_filter}"
+        f"[music_ducked];"
+        f"[0:a][music_ducked]amix=inputs=2:duration=first:dropout_transition=2[aout]"
+    )
+
     cmd = [
         "ffmpeg", "-y",
         "-i", voiceover_path,
         "-i", music_path,
-        "-filter_complex",
-        f"[1:a]volume=0.3[music];"  # Reduce base music volume
-        f"[0:a][music]amix=inputs=2:duration=first:dropout_transition=2[out]",
-        "-map", "[out]",
-        "-t", str(vo_duration + 1),  # Add 1s buffer
+        "-filter_complex", music_filter,
+        "-map", "[aout]",
         "-ar", "44100",
         "-ac", "2",
-        output_path
+        "-c:a", "aac",
+        "-b:a", "192k",
+        output_path,
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
 
         if result.returncode != 0:
-            logger.warning(f"Music ducking failed, using voiceover only: {result.stderr[:200]}")
+            logger.warning(f"Music ducking failed, using voiceover only: {result.stderr[:300]}")
             import shutil
             shutil.copy(voiceover_path, output_path)
 
@@ -535,12 +632,13 @@ def generate_audio(job_data: Dict[str, Any]) -> Dict[str, Any]:
             if downloaded_music:
                 logger.info(f"[{job_id}] Mixing with background music: {music_id}")
 
-                # Mix voiceover with music (ducking)
+                # Mix voiceover with music (smart ducking using word timings)
                 mixed_audio_path = str(temp_dir / "final_audio.mp3")
                 apply_music_ducking(
                     voiceover_path=voiceover_normalized,
                     music_path=downloaded_music,
                     output_path=mixed_audio_path,
+                    word_timings=word_timings,
                 )
 
                 final_audio_path = mixed_audio_path

@@ -31,7 +31,7 @@ type ActiveTab = 'themes' | 'create';
 const STATUS_LABELS: Record<string, string> = {
     queued: 'Queued...',
     building_prompt: 'Preparing...',
-    generating_video: 'Generating video with Kling 2.6 Motion Control...',
+    generating_video: 'Generating video...',
     composing: 'Composing...',
     encoding: 'Encoding final video...',
     completed: 'Complete!',
@@ -95,11 +95,10 @@ function RadioGroup<T extends string | number>({
                     <button
                         key={String(opt.value)}
                         onClick={() => onChange(opt.value)}
-                        className={`px-4 py-2.5 text-sm rounded-xl transition-all duration-120 whitespace-nowrap ${
-                            value === opt.value
-                                ? 'bg-[#C8FF4D] text-[#1C1F26] font-semibold shadow-[0_0_16px_rgba(200,255,77,0.35)]'
-                                : 'bg-gradient-to-b from-[#262b38] to-[#222631] text-[#A1A8B8] hover:text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)]'
-                        }`}
+                        className={`px-4 py-2.5 text-sm rounded-xl transition-all duration-120 whitespace-nowrap ${value === opt.value
+                            ? 'bg-[#C8FF4D] text-[#1C1F26] font-semibold shadow-[0_0_16px_rgba(200,255,77,0.35)]'
+                            : 'bg-gradient-to-b from-[#262b38] to-[#222631] text-[#A1A8B8] hover:text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)]'
+                            }`}
                     >
                         {opt.label}
                     </button>
@@ -258,11 +257,10 @@ function ThemeCard({
     return (
         <button
             onClick={onSelect}
-            className={`relative rounded-2xl overflow-hidden transition-all duration-150 group shadow-[0_8px_24px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)] ${
-                isSelected
-                    ? 'card-glow-lime scale-[1.02]'
-                    : 'hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(200,255,77,0.15),inset_0_0_0_1px_rgba(255,255,255,0.06)]'
-            }`}
+            className={`relative rounded-2xl overflow-hidden transition-all duration-150 group shadow-[0_8px_24px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)] ${isSelected
+                ? 'card-glow-lime scale-[1.02]'
+                : 'hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(200,255,77,0.15),inset_0_0_0_1px_rgba(255,255,255,0.06)]'
+                }`}
         >
             {/* 9:16 Video Preview */}
             <div className="aspect-[9/16] bg-[#1C1F26] relative">
@@ -349,17 +347,17 @@ function PreviewPanel({
         const label = STATUS_LABELS[jobData.status] || jobData.status;
         return (
             <div className="flex flex-col items-center justify-center h-full gap-6 p-6">
-                <div className="w-16 h-16 border-4 border-[rgba(255,255,255,0.06)] border-t-[#7C5CFF] rounded-full animate-spin" />
+                <div className="w-16 h-16 border-4 border-[rgba(255,255,255,0.06)] border-t-[#C8FF4D] rounded-full animate-spin" />
                 <div className="text-center space-y-2">
                     <p className="text-sm font-medium text-white">{label}</p>
                     <div className="w-48">
                         <div className="h-1.5 bg-[#0B0D12] rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-[#7C5CFF] to-[#b79cff] rounded-full transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-[#C8FF4D] to-[#E0FF99] rounded-full transition-all duration-500"
                                 style={{ width: `${jobData.progress || 0}%` }}
                             />
                         </div>
-                        <p className="text-xs text-[#7E86B5] text-center mt-1">{jobData.progress || 0}%</p>
+                        <p className="text-xs text-[#A1A8B8] text-center mt-1">{jobData.progress || 0}%</p>
                     </div>
                 </div>
                 <p className="text-xs text-[#5A6179]">This may take 30-90 seconds</p>
@@ -371,7 +369,7 @@ function PreviewPanel({
     if (isPending) {
         return (
             <div className="flex flex-col items-center justify-center h-full gap-4 p-6">
-                <div className="w-12 h-12 border-4 border-[rgba(255,255,255,0.06)] border-t-[#7C5CFF] rounded-full animate-spin" />
+                <div className="w-12 h-12 border-4 border-[rgba(255,255,255,0.06)] border-t-[#C8FF4D] rounded-full animate-spin" />
                 <p className="text-sm text-[#7E86B5]">Starting generation...</p>
             </div>
         );
@@ -526,7 +524,7 @@ function TrendingThemeTab({
                         hint="JPG, PNG, or WEBP up to 10MB"
                     />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
                         <RadioGroup
                             label="Motion Intensity"
                             options={[
@@ -570,11 +568,10 @@ function TrendingThemeTab({
                     <button
                         onClick={handleGenerate}
                         disabled={busy || !imageDataUrl}
-                        className={`w-full py-4 rounded-[14px] font-semibold text-base transition-all ${
-                            busy || !imageDataUrl
-                                ? 'bg-[#222631] text-[#6F7688] cursor-not-allowed'
-                                : 'bg-[#C8FF4D] text-[#1C1F26] hover:bg-[#D8FF75] shadow-[0_6px_24px_rgba(200,255,77,0.4)] hover:shadow-[0_10px_40px_rgba(200,255,77,0.5)]'
-                        }`}
+                        className={`w-full py-4 rounded-[14px] font-semibold text-base transition-all ${busy || !imageDataUrl
+                            ? 'bg-[#222631] text-[#6F7688] cursor-not-allowed'
+                            : 'bg-[#C8FF4D] text-[#1C1F26] hover:bg-[#D8FF75] shadow-[0_6px_24px_rgba(200,255,77,0.4)] hover:shadow-[0_10px_40px_rgba(200,255,77,0.5)]'
+                            }`}
                     >
                         {generateTheme.isPending ? (
                             <span className="flex items-center justify-center gap-2">
@@ -725,7 +722,7 @@ function CreateYourOwnTab({
                 </div>
 
                 {/* Controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
                     <RadioGroup
                         label="Motion Intensity"
                         options={[
@@ -771,11 +768,10 @@ function CreateYourOwnTab({
                 <button
                     onClick={handleGenerate}
                     disabled={busy || !canGenerate}
-                    className={`w-full py-4 rounded-[14px] font-semibold text-base transition-all ${
-                        busy || !canGenerate
-                            ? 'bg-[#222631] text-[#6F7688] cursor-not-allowed'
-                            : 'bg-[#C8FF4D] text-[#1C1F26] hover:bg-[#D8FF75] shadow-[0_4px_20px_rgba(200,255,77,0.4)] hover:shadow-[0_4px_28px_rgba(200,255,77,0.55)]'
-                    }`}
+                    className={`w-full py-4 rounded-[14px] font-semibold text-base transition-all ${busy || !canGenerate
+                        ? 'bg-[#222631] text-[#6F7688] cursor-not-allowed'
+                        : 'bg-[#C8FF4D] text-[#1C1F26] hover:bg-[#D8FF75] shadow-[0_4px_20px_rgba(200,255,77,0.4)] hover:shadow-[0_4px_28px_rgba(200,255,77,0.55)]'
+                        }`}
                 >
                     {generateCustom.isPending ? (
                         <span className="flex items-center justify-center gap-2">
@@ -845,7 +841,7 @@ export default function TrendingVideoPage() {
                 {/* Header */}
                 <header className="flex-shrink-0 px-4 md:px-6 xl:px-8 py-4 md:py-6">
                     <h1 className="text-2xl md:text-[28px] xl:text-[32px] font-bold text-white tracking-tight">Trending AI Videos</h1>
-                    <p className="text-[#A1A8B8] text-sm mt-1">Turn yourself into viral trend videos in seconds</p>
+                    <p className="text-[#A1A8B8] text-sm mt-1 mb-6 md:mb-8">Turn yourself into viral trend videos in seconds</p>
                 </header>
 
                 {/* Tablet/Mobile Preview — shown above inputs below xl */}
@@ -873,21 +869,19 @@ export default function TrendingVideoPage() {
                             <div className="flex md:inline-flex bg-[#222631] rounded-full p-1 shadow-[0_4px_20px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
                                 <button
                                     onClick={() => setActiveTab('themes')}
-                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 ${
-                                        activeTab === 'themes'
-                                            ? 'bg-[#C8FF4D] text-[#1C1F26] shadow-lg shadow-[rgba(200,255,77,0.2)]'
-                                            : 'text-[#A1A8B8] hover:text-white'
-                                    }`}
+                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 ${activeTab === 'themes'
+                                        ? 'bg-[#C8FF4D] text-[#1C1F26] shadow-lg shadow-[rgba(200,255,77,0.2)]'
+                                        : 'text-[#A1A8B8] hover:text-white'
+                                        }`}
                                 >
                                     Trending Themes
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('create')}
-                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 ${
-                                        activeTab === 'create'
-                                            ? 'bg-[#C8FF4D] text-[#1C1F26] shadow-lg shadow-[rgba(200,255,77,0.2)]'
-                                            : 'text-[#A1A8B8] hover:text-white'
-                                    }`}
+                                    className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 ${activeTab === 'create'
+                                        ? 'bg-[#C8FF4D] text-[#1C1F26] shadow-lg shadow-[rgba(200,255,77,0.2)]'
+                                        : 'text-[#A1A8B8] hover:text-white'
+                                        }`}
                                 >
                                     Create Your Own
                                 </button>

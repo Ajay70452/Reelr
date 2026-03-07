@@ -691,7 +691,7 @@ class VideoComposer:
 
         # ASS header
         ass_content = f"""[Script Info]
-Title: ClipKing Captions
+Title: Reelr Captions
 ScriptType: v4.00+
 WrapStyle: 0
 ScaledBorderAndShadow: yes

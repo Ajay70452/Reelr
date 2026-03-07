@@ -399,24 +399,37 @@ def upscale_image(image_url: str, model_id: str) -> str:
 
 
 # ============================================
-# Ken Burns Effect (FFmpeg) - Unchanged
+# Ken Burns Effect (FFmpeg) — Fixed with pre-scaling
 # ============================================
+# Ken Burns effect cycle: 3 distinct movement types.
+# IMPORTANT: We pre-scale the image to 115% before applying zoompan.
+# Without this, zoompan hits the original image boundary and shows BLACK EDGES.
+KEN_BURNS_EFFECTS = ["zoom_out", "zoom_in", "pan_right"]
+
+
 def apply_ken_burns_effect(
     image_path: str,
     output_path: str,
     duration: float = 5.0,
-    effect_type: str = "zoom_in",
+    effect_type: str = "zoom_out",
     fps: int = 30,
+    width: int = 1080,
+    height: int = 1920,
 ) -> str:
     """
     Apply Ken Burns (pan/zoom) effect to a static image using FFmpeg.
+
+    Uses a pre-scale step (image scaled to 115%) before applying zoompan,
+    which prevents black edge artifacts when the zoom/pan reaches the image boundary.
 
     Args:
         image_path: Path to input image
         output_path: Path for output video
         duration: Duration in seconds
-        effect_type: Type of effect (zoom_in, zoom_out, pan_left, pan_right)
+        effect_type: Type of effect (zoom_out, zoom_in, pan_right)
         fps: Output frame rate
+        width: Target output width
+        height: Target output height
 
     Returns:
         Path to output video
@@ -424,31 +437,49 @@ def apply_ken_burns_effect(
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
     total_frames = int(duration * fps)
+    # Pre-scaled dimensions — 15% extra canvas to avoid black edges during pan/zoom
+    scaled_w = int(width * 1.15)
+    scaled_h = int(height * 1.15)
+    output_res = f"{width}x{height}"
 
-    if effect_type == "zoom_in":
-        filter_expr = (
-            f"zoompan=z='min(zoom+0.001,1.3)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-            f":d={total_frames}:s=1080x1920:fps={fps}"
+    # Each effect: pre-scale to 115% FIRST, then apply zoompan within that canvas.
+    if effect_type == "zoom_out":
+        # Starts at 1.15x zoom (already pre-scaled) and slowly eases out to 1.0x
+        vf = (
+            f"scale={scaled_w}:{scaled_h},"
+            f"zoompan=z='1.15-0.15*on/{total_frames}'"
+            f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={total_frames}:s={output_res}:fps={fps}"
         )
-    elif effect_type == "zoom_out":
-        filter_expr = (
-            f"zoompan=z='if(eq(on,1),1.3,max(zoom-0.001,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-            f":d={total_frames}:s=1080x1920:fps={fps}"
-        )
-    elif effect_type == "pan_left":
-        filter_expr = (
-            f"zoompan=z='1.1':x='if(eq(on,1),iw*0.1,x-1)':y='ih/2-(ih/zoom/2)'"
-            f":d={total_frames}:s=1080x1920:fps={fps}"
+    elif effect_type == "zoom_in":
+        # Starts at 1.0x and zooms slowly into 1.15x
+        vf = (
+            f"scale={scaled_w}:{scaled_h},"
+            f"zoompan=z='1.0+0.15*on/{total_frames}'"
+            f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={total_frames}:s={output_res}:fps={fps}"
         )
     elif effect_type == "pan_right":
-        filter_expr = (
-            f"zoompan=z='1.1':x='if(eq(on,1),-iw*0.1,x+1)':y='ih/2-(ih/zoom/2)'"
-            f":d={total_frames}:s=1080x1920:fps={fps}"
+        # Holds 1.15x zoom steady and pans horizontally right
+        vf = (
+            f"scale={scaled_w}:{scaled_h},"
+            f"zoompan=z=1.15:x='0.15*iw*on/{total_frames}':y='ih*0.075'"
+            f":d={total_frames}:s={output_res}:fps={fps}"
+        )
+    elif effect_type == "pan_left":
+        # Holds 1.15x zoom steady and pans horizontally left
+        vf = (
+            f"scale={scaled_w}:{scaled_h},"
+            f"zoompan=z=1.15:x='0.15*iw*(1-on/{total_frames})':y='ih*0.075'"
+            f":d={total_frames}:s={output_res}:fps={fps}"
         )
     else:
-        filter_expr = (
-            f"zoompan=z='min(zoom+0.001,1.2)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-            f":d={total_frames}:s=1080x1920:fps={fps}"
+        # Default fallback: gentle zoom out
+        vf = (
+            f"scale={scaled_w}:{scaled_h},"
+            f"zoompan=z='1.15-0.15*on/{total_frames}'"
+            f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={total_frames}:s={output_res}:fps={fps}"
         )
 
     cmd = [
@@ -456,8 +487,9 @@ def apply_ken_burns_effect(
         "-y",
         "-loop", "1",
         "-i", image_path,
-        "-vf", filter_expr,
+        "-vf", vf,
         "-t", str(duration),
+        "-r", str(fps),
         "-c:v", "libx264",
         "-preset", "fast",
         "-crf", "23",
@@ -476,7 +508,7 @@ def apply_ken_burns_effect(
         )
 
         if result.returncode != 0:
-            logger.error(f"FFmpeg error: {result.stderr}")
+            logger.error(f"FFmpeg Ken Burns error: {result.stderr[-500:]}")
             raise RetryableFailure(f"FFmpeg Ken Burns failed: {result.stderr[:200]}")
 
         return output_path
@@ -484,7 +516,7 @@ def apply_ken_burns_effect(
     except subprocess.TimeoutExpired:
         raise RetryableFailure("FFmpeg Ken Burns timed out")
     except FileNotFoundError:
-        raise PermanentFailure("FFmpeg not found - please install FFmpeg")
+        raise PermanentFailure("FFmpeg not found — please install FFmpeg")
 
 
 # ============================================
@@ -735,8 +767,15 @@ def process_motion_images(job_data: Dict[str, Any]) -> Dict[str, Any]:
     temp_dir = Path(settings.TEMP_DIR) / job_id / "visuals"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
+    # Resolve output dimensions from aspect ratio
+    aspect_dims = {
+        "9:16": (1080, 1920),
+        "16:9": (1920, 1080),
+        "1:1": (1080, 1080),
+    }
+    kb_width, kb_height = aspect_dims.get(aspect_ratio, (1080, 1920))
+
     visual_clips = []
-    effect_types = ["zoom_in", "zoom_out", "pan_left", "pan_right"]
 
     try:
         for i, scene in enumerate(parsed_scenes):
@@ -785,12 +824,14 @@ def process_motion_images(job_data: Dict[str, Any]) -> Dict[str, Any]:
                     image_path = str(temp_dir / f"image_{scene_id}.png")
                     download_file(image_url, image_path)
 
-                    effect_type = effect_types[i % len(effect_types)]
+                    effect_type = KEN_BURNS_EFFECTS[i % len(KEN_BURNS_EFFECTS)]
                     apply_ken_burns_effect(
                         image_path=image_path,
                         output_path=video_path,
                         duration=duration,
                         effect_type=effect_type,
+                        width=kb_width,
+                        height=kb_height,
                     )
                     clip_type = "ken_burns"
             else:
@@ -798,12 +839,14 @@ def process_motion_images(job_data: Dict[str, Any]) -> Dict[str, Any]:
                 image_path = str(temp_dir / f"image_{scene_id}.png")
                 download_file(image_url, image_path)
 
-                effect_type = effect_types[i % len(effect_types)]
+                effect_type = KEN_BURNS_EFFECTS[i % len(KEN_BURNS_EFFECTS)]
                 apply_ken_burns_effect(
                     image_path=image_path,
                     output_path=video_path,
                     duration=duration,
                     effect_type=effect_type,
+                    width=kb_width,
+                    height=kb_height,
                 )
                 clip_type = "ken_burns"
 

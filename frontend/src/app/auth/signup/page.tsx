@@ -97,7 +97,7 @@ export default function SignupPage() {
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-4">Account Created!</h2>
                     <p className="text-gray-400 mb-8">
-                        Welcome to ClipKing! You&apos;ve been given <span className="text-accent font-semibold">10 free credits</span> to get started.
+                        Welcome to Reelr! You&apos;ve been given <span className="text-accent font-semibold">10 free credits</span> to get started.
                     </p>
                     <div className="animate-pulse text-sm text-gray-500">
                         Redirecting to generator...

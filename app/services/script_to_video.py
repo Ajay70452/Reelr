@@ -157,6 +157,28 @@ class ScriptToVideoService:
                        f"{len(caption_data.words)} words")
 
             # ============================================
+            # STEP 3.5: Background Music Mixing
+            # ============================================
+            final_audio_path = audio_result.audio_path  # default: voiceover only
+
+            bgm_id = job.bgm_id
+            if bgm_id and bgm_id != "none":
+                await self._update_status(job, "mixing_audio", 28, "Adding background music...")
+                try:
+                    mixed_path = await self._mix_background_music(
+                        voiceover_path=audio_result.audio_path,
+                        bgm_id=bgm_id,
+                        word_timings=caption_data.words,
+                    )
+                    if mixed_path:
+                        final_audio_path = mixed_path
+                        logger.info(f"Background music mixed: {bgm_id}")
+                    else:
+                        logger.warning(f"Music '{bgm_id}' not found, using voiceover only")
+                except Exception as e:
+                    logger.warning(f"Music mixing failed, using voiceover only: {e}")
+
+            # ============================================
             # STEP 4: Image Generation (1 scene = 1 image)
             # ============================================
             await self._update_status(job, "generating_images", 35, "Generating images...")
@@ -182,7 +204,7 @@ class ScriptToVideoService:
             # Create composition data
             composition = VideoCompositionData(
                 scenes=scenes_with_timing,
-                audio_path=audio_result.audio_path,
+                audio_path=final_audio_path,
                 captions=caption_data,
                 aspect_ratio=job.aspect_ratio,
                 fps=30,
@@ -292,6 +314,145 @@ class ScriptToVideoService:
         }
 
         return voice_mappings.get(voice_id.lower(), DEFAULT_VOICE)
+
+    async def _mix_background_music(
+        self,
+        voiceover_path: Path,
+        bgm_id: str,
+        word_timings: list,
+    ) -> Optional[Path]:
+        """
+        Download background music from S3 and mix it with voiceover.
+
+        Self-contained — does not import from audio_worker (which depends on rq).
+
+        Returns:
+            Path to mixed audio file, or None if music not found.
+        """
+        import subprocess
+        import tempfile
+
+        # Music library mapping (same as audio_worker.MUSIC_LIBRARY)
+        MUSIC_LIBRARY = {
+            "another_love": "music/Another Love.mp3",
+            "blade_runner_2049": "music/Blade Runner 2049.mp3",
+            "carman_prelude": "music/Carman Prelude.mp3",
+            "else_paris_extended": "music/Else - Paris Extended.mp3",
+            "else_paris": "music/Else - Paris.mp3",
+            "fur_elise": "music/Fur Elise.mp3",
+            "snowfall": "music/Snowfall.mp3",
+        }
+
+        music_key = MUSIC_LIBRARY.get(bgm_id)
+        if not music_key:
+            logger.warning(f"Music ID '{bgm_id}' not found in library")
+            return None
+
+        temp_dir = Path(tempfile.gettempdir()) / "clipking" / "music_mix"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+
+        # Step 1: Download music from S3
+        music_local_path = str(temp_dir / f"bgm_{bgm_id}.mp3")
+        storage = get_storage()
+        try:
+            if not storage.file_exists(music_key):
+                logger.warning(f"Music file not found in S3: {music_key}")
+                return None
+            storage.download_file(music_key, music_local_path)
+            logger.info(f"Downloaded music from S3: {music_key}")
+        except Exception as e:
+            logger.warning(f"Failed to download music from S3: {e}")
+            return None
+
+        # Step 2: Get voiceover duration
+        try:
+            probe_cmd = [
+                "ffprobe", "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                str(voiceover_path),
+            ]
+            result = subprocess.run(probe_cmd, capture_output=True, text=True, timeout=30)
+            vo_duration = float(result.stdout.strip()) if result.returncode == 0 else 30.0
+        except Exception:
+            vo_duration = 30.0
+
+        # Step 3: Build smart ducking filter from word timings
+        duck_level = 0.12   # Volume during speech (very quiet)
+        base_level = 0.25   # Volume during gaps (audible but not overpowering)
+
+        if word_timings:
+            # Merge word timings into speech regions
+            speech_regions = []
+            buffer = 0.3
+            sorted_words = sorted(word_timings, key=lambda w: w.start)
+            if sorted_words:
+                current_start = sorted_words[0].start
+                current_end = sorted_words[0].end
+                for w in sorted_words[1:]:
+                    if w.start - current_end < 0.5:  # gap threshold
+                        current_end = max(current_end, w.end)
+                    else:
+                        speech_regions.append((current_start, current_end))
+                        current_start = w.start
+                        current_end = w.end
+                speech_regions.append((current_start, current_end))
+
+            # Build FFmpeg volume expression
+            if speech_regions:
+                parts = []
+                for start, end in speech_regions:
+                    s = max(0, start - buffer)
+                    e = end + buffer
+                    parts.append(f"between(t,{s:.2f},{e:.2f})")
+                condition = "+".join(parts)
+                duck_filter = f"volume='{base_level} - ({base_level}-{duck_level})*min(1,{condition})':eval=frame"
+            else:
+                duck_filter = f"volume={base_level}"
+        else:
+            duck_filter = f"volume={base_level}"
+
+        logger.info(f"Mixing audio: vo_duration={vo_duration:.1f}s, bgm={bgm_id}")
+
+        # Step 4: Mix voiceover with ducked music
+        mixed_path = str(temp_dir / f"mixed_{uuid.uuid4()}.mp3")
+
+        music_filter = (
+            f"[1:a]aloop=loop=-1:size=2e+09,"
+            f"atrim=0:{vo_duration + 1.0},"
+            f"{duck_filter}"
+            f"[music_ducked];"
+            f"[0:a][music_ducked]amix=inputs=2:duration=first:dropout_transition=2[aout]"
+        )
+
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", str(voiceover_path),
+            "-i", music_local_path,
+            "-filter_complex", music_filter,
+            "-map", "[aout]",
+            "-ar", "44100",
+            "-ac", "2",
+            "-c:a", "libmp3lame",
+            "-b:a", "192k",
+            mixed_path,
+        ]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+            if result.returncode != 0:
+                logger.warning(f"Music mixing FFmpeg failed: {result.stderr[:300]}")
+                return None
+        except subprocess.TimeoutExpired:
+            logger.warning("Music mixing timed out")
+            return None
+
+        mixed_file = Path(mixed_path)
+        if mixed_file.exists() and mixed_file.stat().st_size > 0:
+            logger.info(f"Music mixed successfully: {mixed_path}")
+            return mixed_file
+
+        return None
 
     async def _enhance_script(
         self,

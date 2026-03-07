@@ -10,23 +10,38 @@ from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 import time
 
-from app.core.config import settings
+from app.core.config import settings, validate_production_settings
 from app.api import api_router
 from app.db import test_connection
 from app.queue.connection import test_redis_connection, init_redis
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Lifespan context manager for startup/shutdown events
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     # Startup
-    print("🚀 Starting ClipKing API...")
+    print("🚀 Starting Reelr API...")
     print(f"📊 Environment: {settings.APP_ENV}")
+
+    # Validate production settings
+    config_errors = validate_production_settings()
+    if config_errors:
+        for err in config_errors:
+            print(f"❌ Config error: {err}")
+        raise RuntimeError(
+            f"Production config validation failed with {len(config_errors)} error(s). "
+            "Fix the above issues before starting in production mode."
+        )
 
     # Test database connection
     if test_connection():
         print("✅ Database connected successfully")
     else:
+        if settings.APP_ENV == "production":
+            raise RuntimeError("Database connection failed — cannot start in production mode")
         print("⚠️  Warning: Database connection failed")
 
     # Test Redis connection
@@ -39,17 +54,17 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    print("👋 Shutting down ClipKing API...")
+    print("👋 Shutting down Reelr API...")
 
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="ClipKing API",
+    title="Reelr API",
     description="AI Video Generator - Kling 2.6 + Flux 1.1 Pro Pipeline",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url="/docs" if settings.APP_ENV != "production" else None,
+    redoc_url="/redoc" if settings.APP_ENV != "production" else None,
 )
 
 # CORS middleware
@@ -88,14 +103,24 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    """Global exception handler"""
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "detail": str(exc),
-            "message": "Internal server error"
-        }
-    )
+    """Global exception handler — never leak internal details in production"""
+    logger.exception(f"Unhandled exception on {request.method} {request.url.path}")
+
+    if settings.APP_ENV == "production":
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "message": "Internal server error"
+            }
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "detail": str(exc),
+                "message": "Internal server error"
+            }
+        )
 
 
 # Root endpoint
@@ -103,7 +128,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 def root():
     """API root endpoint"""
     return {
-        "message": "Welcome to ClipKing API",
+        "message": "Welcome to Reelr API",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/health"
