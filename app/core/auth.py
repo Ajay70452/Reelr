@@ -80,15 +80,30 @@ def verify_supabase_token(token: str) -> dict:
         )
 
 
+from fastapi import Request
+
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
     db: Session = Depends(get_db)
 ) -> User:
     """
     Dependency to get current authenticated user from Supabase JWT token.
     Creates user if they don't exist (first-time login).
     """
-    token = credentials.credentials
+    # 1. Try custom header (immune to Vercel/ALB proxy overwrites)
+    token = request.headers.get("x-supabase-auth")
+    
+    # 2. Fallback to standard Authorization header
+    if not token and credentials:
+        token = credentials.credentials
+        
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token"
+        )
+        
     payload = verify_supabase_token(token)
 
     # Supabase token has 'sub' as the user ID
@@ -138,14 +153,19 @@ def get_current_user(
 
 
 def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
     db: Session = Depends(get_db)
 ) -> Optional[User]:
     """Optional authentication - returns None if not authenticated"""
-    if credentials is None:
-        return None
-    
     try:
-        return get_current_user(credentials, db)
+        token = request.headers.get("x-supabase-auth")
+        if not token and credentials:
+            token = credentials.credentials
+            
+        if not token:
+            return None
+            
+        return get_current_user(request=request, credentials=credentials, db=db)
     except HTTPException:
         return None

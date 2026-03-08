@@ -54,6 +54,7 @@ apiClient.interceptors.request.use(
 
       if (session?.access_token) {
         config.headers.Authorization = `Bearer ${session.access_token}`;
+        config.headers["x-supabase-auth"] = session.access_token;
       }
     } catch {
       // Supabase not available, skip token
