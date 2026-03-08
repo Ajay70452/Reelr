@@ -149,11 +149,11 @@ export default function LibraryPage() {
     };
 
     const FILTERS: { value: FilterType; label: string }[] = [
-        { value: 'all', label: 'All' },
-        { value: 'trending_video', label: 'Trending' },
-        { value: 'ai_video', label: 'AI Video' },
-        { value: 'script_to_video', label: 'Script' },
-        { value: 'classic', label: 'Classic' },
+        { value: 'all' as FilterType, label: 'All' },
+        { value: 'trending_video' as FilterType, label: 'Trending' },
+        { value: 'ai_video' as FilterType, label: 'AI Video' },
+        { value: 'script_to_video' as FilterType, label: 'Script' },
+        { value: 'classic' as FilterType, label: 'Classic' },
     ].filter(f => f.value === 'all' || counts[f.value] > 0);
 
     return (
