@@ -18,10 +18,16 @@ def get_connection_pool() -> ConnectionPool:
     global _connection_pool
 
     if _connection_pool is None:
+        kwargs = {
+            "max_connections": 20,
+            "decode_responses": False,
+        }
+        if settings.REDIS_URL.startswith("rediss://"):
+            kwargs["ssl_cert_reqs"] = "none"
+
         _connection_pool = ConnectionPool.from_url(
             settings.REDIS_URL,
-            max_connections=20,
-            decode_responses=False,  # RQ requires bytes
+            **kwargs
         )
 
     return _connection_pool
@@ -39,9 +45,10 @@ def test_redis_connection() -> bool:
         conn = get_redis_connection()
         conn.ping()
         return True
-    except redis.ConnectionError:
-        return False
-    except Exception:
+    except Exception as e:
+        print(f"\n[CRITICAL] Redis Connection Failed: {e}\n")
+        import traceback
+        traceback.print_exc()
         return False
 
 
