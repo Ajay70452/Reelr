@@ -60,10 +60,16 @@ def verify_supabase_token(token: str) -> dict:
         )
     except jwt.InvalidTokenError as e:
         import logging
-        logging.getLogger(__name__).error(f"JWT Validation error: {str(e)}")
+        try:
+            unverified_header = jwt.get_unverified_header(token)
+            alg = unverified_header.get("alg")
+        except Exception:
+            alg = "unknown"
+            
+        logging.getLogger(__name__).error(f"JWT Validation error: {str(e)} (Token alg: {alg})")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid authentication token: {str(e)}"
+            detail=f"Invalid authentication token: {str(e)}. (Token alg was {alg})"
         )
     except Exception as e:
         import logging
