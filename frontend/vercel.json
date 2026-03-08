@@ -3,11 +3,6 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@clipking-api-url",
-    "NEXT_PUBLIC_SUPABASE_URL": "@clipking-supabase-url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@clipking-supabase-anon-key"
-  },
   "regions": ["iad1"],
   "public": false
 }
