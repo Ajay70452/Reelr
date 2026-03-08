@@ -58,10 +58,19 @@ def verify_supabase_token(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired"
         )
-    except jwt.InvalidTokenError:
+    except jwt.InvalidTokenError as e:
+        import logging
+        logging.getLogger(__name__).error(f"JWT Validation error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token"
+            detail=f"Invalid authentication token: {str(e)}"
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Unexpected JWT error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Authentication error: {str(e)}"
         )
 
 
