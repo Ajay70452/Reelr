@@ -135,6 +135,12 @@ def root():
     }
 
 
+@app.get("/health")
+def root_health_check():
+    """Root health check for AWS ELB"""
+    return {"status": "healthy"}
+
+
 # Include API routes
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
