@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const isProdBrowser = typeof window !== "undefined" && window.location.hostname !== "localhost";
+const API_URL = isProdBrowser ? "" : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
 const API_TIMEOUT = parseInt(
   process.env.NEXT_PUBLIC_API_TIMEOUT || "60000",
   10
