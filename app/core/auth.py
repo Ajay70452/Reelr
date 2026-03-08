@@ -91,12 +91,17 @@ def get_current_user(
     Dependency to get current authenticated user from Supabase JWT token.
     Creates user if they don't exist (first-time login).
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(f"INCOMING HEADERS: {dict(request.headers)}")
+    
     # 1. Try custom header (immune to Vercel/ALB proxy overwrites)
-    token = request.headers.get("x-supabase-auth")
+    token = request.headers.get("supabase-token") or request.headers.get("x-supabase-auth")
     
     # 2. Fallback to standard Authorization header
     if not token and credentials:
         token = credentials.credentials
+        logger.error("supabase-token was MISSING in headers, falling back to Authorization header")
         
     if not token:
         raise HTTPException(
@@ -104,6 +109,7 @@ def get_current_user(
             detail="Missing authentication token"
         )
         
+    logger.error(f"Extracted Token (first 20 chars): {token[:20]}...")
     payload = verify_supabase_token(token)
 
     # Supabase token has 'sub' as the user ID
@@ -159,7 +165,7 @@ def get_optional_user(
 ) -> Optional[User]:
     """Optional authentication - returns None if not authenticated"""
     try:
-        token = request.headers.get("x-supabase-auth")
+        token = request.headers.get("supabase-token") or request.headers.get("x-supabase-auth")
         if not token and credentials:
             token = credentials.credentials
             

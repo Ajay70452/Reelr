@@ -1,4 +1,5 @@
 import axios from "axios";
+import { supabase } from "@/lib/supabase";
 
 const isProdBrowser = typeof window !== "undefined" && window.location.hostname !== "localhost";
 const API_URL = isProdBrowser ? "" : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
@@ -20,13 +21,8 @@ export function resolveMediaUrl(url: string | null | undefined): string {
     return url;
   }
 
-  // If it's a relative API URL, prepend the API base URL
-  if (url.startsWith('/api/')) {
-    return `${API_URL}${url}`;
-  }
-
-  // Otherwise return as-is
-  return url;
+  // If it's a relative URL, prepend the API base URL
+  return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 /**
@@ -49,15 +45,14 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
-      const { supabase } = await import("@/lib/supabase");
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.access_token) {
         config.headers.Authorization = `Bearer ${session.access_token}`;
-        config.headers["x-supabase-auth"] = session.access_token;
+        config.headers["supabase-token"] = session.access_token;
       }
-    } catch {
-      // Supabase not available, skip token
+    } catch (e) {
+      console.error("Error setting up interceptor token", e);
     }
 
     return config;
