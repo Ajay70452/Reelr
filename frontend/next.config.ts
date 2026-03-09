@@ -1,14 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`, // Proxy to AWS ALB
-      },
-    ];
-  },
+  // API proxying is now handled by src/app/api/[...path]/route.ts
+  // This gives us full control over headers (bypasses Vercel edge auth injection)
 };
 
 export default nextConfig;
