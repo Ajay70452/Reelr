@@ -24,7 +24,8 @@ alembic==1.13.3  # Database migrations
 # Authentication & Security
 # ============================================
 supabase==2.9.1  # Supabase client (Auth + DB + Storage)
-python-jose[cryptography]==3.3.0  # JWT tokens
+PyJWT[crypto]>=2.4.0  # JWT tokens with ES256 support
+python-jose[cryptography]==3.3.0  # JWT tokens (legacy)
 passlib[bcrypt]==1.7.4  # Password hashing
 python-dotenv==1.0.1  # Environment variables
 

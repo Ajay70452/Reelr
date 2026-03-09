@@ -30,50 +30,84 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Cache the JWKS client so we don't create a new one per request
+_jwks_client = None
+
+
+def _get_jwks_client():
+    """Get or create a cached PyJWKClient for Supabase JWKS verification."""
+    global _jwks_client
+    if _jwks_client is None and settings.SUPABASE_URL:
+        from jwt import PyJWKClient
+        jwks_url = f"{settings.SUPABASE_URL}/auth/v1/.well-known/jwks.json"
+        logger.info(f"Initializing JWKS client with URL: {jwks_url}")
+        _jwks_client = PyJWKClient(jwks_url, cache_keys=True)
+    return _jwks_client
+
+
 def verify_supabase_token(token: str) -> dict:
     """
     Decode and verify Supabase JWT token.
-    Uses SUPABASE_JWT_SECRET for signature verification in production.
+    Supports both HS256 (legacy) and ES256 (new Supabase default) algorithms.
     """
     try:
-        if settings.SUPABASE_JWT_SECRET:
-            # Production: verify signature with Supabase JWT secret
+        # First, peek at the token header to determine the algorithm
+        unverified_header = jwt.get_unverified_header(token)
+        alg = unverified_header.get("alg", "HS256")
+        logger.info(f"Token algorithm: {alg}")
+
+        if alg == "ES256":
+            # New Supabase tokens use ES256 — verify with JWKS public key
+            jwks_client = _get_jwks_client()
+            if jwks_client:
+                signing_key = jwks_client.get_signing_key_from_jwt(token)
+                payload = jwt.decode(
+                    token,
+                    signing_key.key,
+                    algorithms=["ES256"],
+                    audience="authenticated",
+                )
+            else:
+                # No SUPABASE_URL set, can't verify ES256 — decode without verification
+                logger.warning("No SUPABASE_URL set, cannot verify ES256 token signature")
+                payload = jwt.decode(token, options={"verify_signature": False})
+
+        elif alg == "HS256" and settings.SUPABASE_JWT_SECRET:
+            # Legacy HS256 tokens — verify with JWT secret
             payload = jwt.decode(
                 token,
                 settings.SUPABASE_JWT_SECRET,
                 algorithms=["HS256"],
                 audience="authenticated",
             )
+
         else:
-            # Development only: decode without verification
-            import logging
-            logging.getLogger(__name__).warning(
-                "SUPABASE_JWT_SECRET not set — JWT signature verification DISABLED. "
-                "Set SUPABASE_JWT_SECRET before deploying to production!"
+            # Development fallback: decode without verification
+            logger.warning(
+                f"JWT verification disabled for alg={alg}. "
+                "Set SUPABASE_JWT_SECRET or SUPABASE_URL before deploying to production!"
             )
             payload = jwt.decode(token, options={"verify_signature": False})
+
         return payload
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired"
         )
     except jwt.InvalidTokenError as e:
-        import logging
-        try:
-            unverified_header = jwt.get_unverified_header(token)
-            alg = unverified_header.get("alg")
-        except Exception:
-            alg = "unknown"
-            
-        logging.getLogger(__name__).error(f"JWT Validation error: {str(e)} (Token alg: {alg})")
+        logger.error(f"JWT Validation error: {str(e)} (alg: {alg})")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid authentication token: {str(e)}. (Token alg was {alg})"
+            detail=f"Invalid authentication token: {str(e)}"
         )
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).error(f"Unexpected JWT error: {str(e)}")
+        logger.error(f"Unexpected JWT error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Authentication error: {str(e)}"
