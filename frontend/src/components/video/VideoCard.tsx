@@ -2,6 +2,7 @@ import { Video } from '@/types';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useDropShare } from '@/hooks/useDropShare';
 
 interface VideoCardProps {
     video: Video;
@@ -9,6 +10,8 @@ interface VideoCardProps {
 }
 
 export default function VideoCard({ video, onDelete }: VideoCardProps) {
+    const { downloadMedia, shareMedia } = useDropShare();
+
     return (
         <div className="group relative bg-[#161A21] border border-[#1D222B] rounded-xl overflow-hidden hover:border-accent/50 transition-all duration-300">
             {/* Thumbnail */}
@@ -63,13 +66,18 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
 
                 {/* Actions */}
                 <div className="flex items-center space-x-2 mt-3">
-                    <a
-                        href={video.video_url}
-                        download
+                    <button
+                        onClick={(e) => { e.preventDefault(); downloadMedia(video.video_url, `video-${video.id}.mp4`); }}
                         className="flex-1 px-3 py-2 bg-[#1D222B] hover:bg-accent hover:text-white text-sm font-medium rounded-lg transition-colors text-center"
                     >
                         Download
-                    </a>
+                    </button>
+                    <button
+                        onClick={(e) => { e.preventDefault(); shareMedia(video.video_url, 'Check out this AI Video from Reelr!'); }}
+                        className="flex-1 px-3 py-2 bg-[#1D222B] hover:bg-accent hover:text-white text-sm font-medium rounded-lg transition-colors text-center"
+                    >
+                        Share
+                    </button>
                     {onDelete && (
                         <button
                             onClick={() => onDelete(video.id)}

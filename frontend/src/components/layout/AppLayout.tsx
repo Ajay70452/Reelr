@@ -94,7 +94,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         pathname === matchPrefix || pathname.startsWith(matchPrefix + '/');
 
     return (
-        <div className="min-h-screen bg-[#1C1F26]">
+        <div className="min-h-screen bg-[#1C1F26] max-w-[100vw] overflow-x-hidden">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
             {/* Mobile/Tablet Top Bar — visible below xl */}
@@ -114,13 +114,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </header>
 
             {/* Main content */}
-            <main className="xl:ml-64 min-h-screen pb-16 md:pb-0">
+            <main className="xl:ml-64 min-h-screen pb-[76px] md:pb-0 max-w-[100vw] overflow-x-hidden">
                 {children}
             </main>
 
             {/* Mobile Bottom Nav — visible below md */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-[#1C1F26]/95 backdrop-blur-md shadow-[0_-1px_0_rgba(255,255,255,0.04)]">
-                <div className="flex items-center justify-around h-full">
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1C1F26]/95 backdrop-blur-md shadow-[0_-1px_0_rgba(255,255,255,0.04)] pb-safe">
+                <div className="flex items-center justify-around h-[68px]">
                     {BOTTOM_TABS.map((tab) => {
                         const active = isTabActive(tab.matchPrefix);
                         const Icon = tab.icon;
@@ -128,11 +128,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                             <Link
                                 key={tab.href}
                                 href={tab.href}
-                                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] py-1 transition-colors ${active ? 'text-[#C8FF4D]' : 'text-[#A1A8B8]'
+                                className={`flex flex-col items-center justify-center gap-1 min-w-[68px] py-2 transition-colors ${active ? 'text-[#C8FF4D]' : 'text-[#A1A8B8]'
                                     }`}
                             >
-                                <Icon className="w-5 h-5" />
-                                <span className="text-[10px] font-medium">{tab.label}</span>
+                                <Icon className="w-6 h-6" />
+                                <span className="text-[11px] font-medium">{tab.label}</span>
                             </Link>
                         );
                     })}

@@ -15,6 +15,7 @@ import Select from '@/components/ui/Select';
 import Toggle from '@/components/ui/Toggle';
 import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
+import AppLayout from '@/components/layout/AppLayout';
 
 export default function CreateVideoPage() {
     const router = useRouter();
@@ -382,7 +383,8 @@ export default function CreateVideoPage() {
     );
 
     return (
-        <div className="min-h-screen bg-[#0F1115] text-white pb-20 md:pb-0 pt-8">
+        <AppLayout>
+        <div className="min-h-screen bg-[#0F1115] text-white pb-24 md:pb-0 pt-8">
             <div className="container mx-auto px-4 md:px-6 xl:px-8 max-w-5xl">
                 <StepIndicator currentStep={currentStep} totalSteps={4} steps={steps} />
 
@@ -394,7 +396,7 @@ export default function CreateVideoPage() {
                 </div>
 
                 {/* Navigation Footer */}
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0F1115]/80 backdrop-blur-md border-t border-gray-800 z-50">
+                <div className="fixed bottom-[68px] md:bottom-0 left-0 right-0 p-4 bg-[#0F1115]/80 backdrop-blur-md border-t border-gray-800 z-50">
                     <div className="container mx-auto max-w-5xl flex justify-between items-center">
                         <Button
                             variant="ghost"
@@ -425,5 +427,6 @@ export default function CreateVideoPage() {
                 </div>
             </div>
         </div>
+        </AppLayout>
     );
 }

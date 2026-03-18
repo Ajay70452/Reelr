@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: "#0F1115",
 };
 
@@ -29,13 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark max-w-[100vw] overflow-x-hidden">
       <body
-        className={`${inter.variable} antialiased`}
+        className={`${inter.variable} antialiased max-w-[100vw] overflow-x-hidden`}
       >
         <Providers>
           <Header />
-          <main>{children}</main>
+          <main className="max-w-[100vw] overflow-x-hidden">{children}</main>
           <Footer />
         </Providers>
       </body>

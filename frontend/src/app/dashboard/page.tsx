@@ -7,6 +7,7 @@ import { useUserStore } from '@/store/userStore';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import WelcomeModal from '@/components/dashboard/WelcomeModal';
+import AppLayout from '@/components/layout/AppLayout';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -27,7 +28,8 @@ export default function DashboardPage() {
     const recentVideos = [];
 
     return (
-        <div className="min-h-screen bg-[#0F1115] py-6 md:py-8 xl:py-12 pb-20 md:pb-0">
+        <AppLayout>
+        <div className="min-h-screen bg-[#0F1115] py-6 md:py-8 xl:py-12 pb-24 md:pb-0">
             <div className="container mx-auto px-4 md:px-6 xl:px-8">
                 {/* Welcome Modal */}
                 <WelcomeModal />
@@ -154,5 +156,6 @@ export default function DashboardPage() {
                 </div>
             </div>
         </div>
+        </AppLayout>
     );
 }

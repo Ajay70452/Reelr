@@ -10,6 +10,7 @@ import {
     useTrendingVideoJob,
     useTrendingThemes,
 } from '@/hooks/useApi';
+import { useDropShare } from '@/hooks/useDropShare';
 
 // ============================================
 // Theme UI Gradients (for config panel)
@@ -61,6 +62,14 @@ function RefreshIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182" />
+        </svg>
+    );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
         </svg>
     );
 }
@@ -334,6 +343,7 @@ function PreviewPanel({
     completedVideoUrl,
     onRegenerate,
     onDownload,
+    onShare,
 }: {
     isGenerating: boolean;
     isPending: boolean;
@@ -341,6 +351,7 @@ function PreviewPanel({
     completedVideoUrl: string | null;
     onRegenerate: () => void;
     onDownload: () => void;
+    onShare: () => void;
 }) {
     // Generating state
     if (isGenerating && jobData && !completedVideoUrl) {
@@ -385,10 +396,9 @@ function PreviewPanel({
                 <div className="flex gap-3 mt-4">
                     <button
                         onClick={onRegenerate}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#222631] text-[#A1A8B8] rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)] hover:text-white transition-all duration-120"
+                        className="flex-none flex items-center justify-center gap-2 py-2.5 px-4 bg-[#222631] text-[#A1A8B8] rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(200,255,77,0.4),0_0_18px_rgba(200,255,77,0.25)] hover:text-white transition-all duration-120"
                     >
                         <RefreshIcon className="w-4 h-4" />
-                        Regenerate
                     </button>
                     <button
                         onClick={onDownload}
@@ -396,6 +406,13 @@ function PreviewPanel({
                     >
                         <DownloadIcon className="w-4 h-4" />
                         Download
+                    </button>
+                    <button
+                        onClick={onShare}
+                        className="flex-none flex items-center justify-center gap-2 py-2.5 px-4 bg-[#222631] text-[#A1A8B8] rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:text-white hover:bg-[#2c303f] transition-all duration-120"
+                        title="Share"
+                    >
+                        <ShareIcon className="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -792,6 +809,7 @@ function CreateYourOwnTab({
 // ============================================
 export default function TrendingVideoPage() {
     const addToast = useToastStore((s) => s.addToast);
+    const { downloadMedia, shareMedia } = useDropShare();
     const [activeTab, setActiveTab] = useState<ActiveTab>('themes');
 
     // Fetch trending themes from API
@@ -829,41 +847,47 @@ export default function TrendingVideoPage() {
 
     const handleDownload = useCallback(() => {
         if (completedVideoUrl) {
-            window.open(completedVideoUrl, '_blank');
+            downloadMedia(completedVideoUrl, `trending-${activeJobId || 'video'}.mp4`);
         }
-    }, [completedVideoUrl]);
+    }, [completedVideoUrl, activeJobId, downloadMedia]);
+
+    const handleShare = useCallback(() => {
+        if (completedVideoUrl) {
+            shareMedia(completedVideoUrl, 'Check out this AI Video from Reelr!');
+        }
+    }, [completedVideoUrl, shareMedia]);
 
     const isGenerating = !!activeJobId;
 
     return (
         <AppLayout>
-            <div className="flex flex-col min-h-screen xl:h-screen bg-[#0B0D12]">
+            <div className="flex flex-col min-h-full bg-[#0B0D12]">
                 {/* Header */}
                 <header className="flex-shrink-0 px-4 md:px-6 xl:px-8 py-4 md:py-6">
                     <h1 className="text-2xl md:text-[28px] xl:text-[32px] font-bold text-white tracking-tight">Trending AI Videos</h1>
                     <p className="text-[#A1A8B8] text-sm mt-1 mb-6 md:mb-8">Turn yourself into viral trend videos in seconds</p>
                 </header>
 
-                {/* Tablet/Mobile Preview — shown above inputs below xl */}
-                {(isGenerating || completedVideoUrl || isPending) && (
-                    <div className="xl:hidden px-4 md:px-6 pb-4">
-                        <div className="rounded-[20px] overflow-hidden max-h-[300px] md:max-h-[350px]" style={{ background: 'linear-gradient(180deg, #262b38 0%, #222631 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(200,255,77,0.08), inset 0 0 0 1px rgba(255,255,255,0.04)' }}>
-                            <PreviewPanel
-                                isGenerating={isGenerating}
-                                isPending={isPending}
-                                jobData={jobData}
-                                completedVideoUrl={completedVideoUrl}
-                                onRegenerate={handleRegenerate}
-                                onDownload={handleDownload}
-                            />
-                        </div>
-                    </div>
-                )}
-
                 {/* Split Layout — vertical on mobile/tablet, horizontal on desktop */}
                 <div className="flex-1 flex flex-col xl:flex-row xl:overflow-hidden">
                     {/* Left Panel — Input */}
-                    <div className="flex-1 xl:overflow-y-auto px-4 md:px-6 xl:px-8 pb-24 md:pb-8">
+                    <div className="flex-1 px-4 md:px-6 xl:px-8 pb-28 md:pb-8">
+                        {/* Tablet/Mobile Preview — shown above inputs below xl */}
+                        {(isGenerating || completedVideoUrl || isPending) && (
+                            <div className="xl:hidden pb-6">
+                                <div className="rounded-[20px] overflow-hidden h-[260px] sm:h-[300px] md:h-[350px]" style={{ background: 'linear-gradient(180deg, #262b38 0%, #222631 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(200,255,77,0.08), inset 0 0 0 1px rgba(255,255,255,0.04)' }}>
+                                    <PreviewPanel
+                                        isGenerating={isGenerating}
+                                        isPending={isPending}
+                                        jobData={jobData}
+                                        completedVideoUrl={completedVideoUrl}
+                                        onRegenerate={handleRegenerate}
+                                        onDownload={handleDownload}
+                                        onShare={handleShare}
+                                    />
+                                </div>
+                            </div>
+                        )}
                         {/* Segmented Tabs */}
                         <div className="pb-4 md:pb-6">
                             <div className="flex md:inline-flex bg-[#222631] rounded-full p-1 shadow-[0_4px_20px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
@@ -910,6 +934,7 @@ export default function TrendingVideoPage() {
                                     completedVideoUrl={completedVideoUrl}
                                     onRegenerate={handleRegenerate}
                                     onDownload={handleDownload}
+                                    onShare={handleShare}
                                 />
                             </div>
                         </div>

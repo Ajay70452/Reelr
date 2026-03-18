@@ -17,6 +17,7 @@ import {
 import PresetSelectorModal from '@/components/generator/PresetSelectorModal';
 import { useToastStore } from '@/store/toastStore';
 import type { AIVideo, AIVideoModel, AIVideoModelConfig, AIPreset } from '@/types';
+import { useDropShare } from '@/hooks/useDropShare';
 
 // Model definitions with icons and credit costs
 const MODEL_INFO: Record<AIVideoModel, { icon: string; creditCost: number; description: string; estimatedTime: string }> = {
@@ -79,6 +80,14 @@ function TrashIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+    );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
         </svg>
     );
 }
@@ -349,7 +358,7 @@ function ModelSelector({
     const models: AIVideoModel[] = ['sora2', 'veo3', 'kling25', 'ltx2'];
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-2 pb-2 md:pb-0 scrollbar-hide -mx-2 px-2 md:mx-0 md:px-0">
             {models.map((modelId) => {
                 const info = MODEL_INFO[modelId];
                 const config = modelConfigs?.[modelId];
@@ -359,7 +368,7 @@ function ModelSelector({
                     <button
                         key={modelId}
                         onClick={() => onSelect(modelId)}
-                        className={`p-3 rounded-xl border transition-all text-left ${
+                        className={`flex-shrink-0 w-36 md:w-auto p-3 rounded-xl border transition-all text-left ${
                             isSelected
                                 ? 'bg-purple-500/20 border-purple-500/50 text-white'
                                 : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
@@ -514,6 +523,7 @@ function AdvancedOptions({
 export default function VideoGeneratorPage() {
     const { user } = useUserStore();
     const addToast = useToastStore((s) => s.addToast);
+    const { downloadMedia, shareMedia, isDownloading } = useDropShare();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const previewDebounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -733,7 +743,7 @@ export default function VideoGeneratorPage() {
 
     return (
         <AppLayout>
-            <div className="flex flex-col h-screen bg-[#0F1115] pb-20 md:pb-0">
+            <div className="flex flex-col min-h-full bg-[#0F1115] pb-20 md:pb-0">
                 {/* Page Header */}
                 <header className="flex-shrink-0 px-4 md:px-6 xl:px-8 py-5">
                     <h1 className="text-xl font-semibold text-white">AI Video Generator</h1>
@@ -741,18 +751,8 @@ export default function VideoGeneratorPage() {
                 </header>
 
                 {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto px-4 md:px-6 xl:px-8">
-                    {/* Active Job Progress */}
-                    {activeJob && jobStatus && (
-                        <div className="mb-6 max-w-md">
-                            <GeneratingCard
-                                prompt={activeJob.prompt}
-                                progress={jobStatus.progress || 0}
-                                status={jobStatus.status}
-                                estimatedTime={MODEL_INFO[activeJob.model]?.estimatedTime}
-                            />
-                        </div>
-                    )}
+                <div className="flex-1 px-4 md:px-6 xl:px-8 pb-4">
+
 
                     {videosLoading ? (
                         <div className="flex items-center justify-center h-full min-h-[400px]">
@@ -761,7 +761,18 @@ export default function VideoGeneratorPage() {
                     ) : videos.length === 0 && !activeJob ? (
                         <EmptyState />
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-8">
+                        <div className={`gap-4 pb-8 ${videos.length === 0 ? 'flex flex-col h-full' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+                            {/* Show generating card first if there's an active job */}
+                            {activeJob && jobStatus && (
+                                <div className="max-w-md w-full">
+                                    <GeneratingCard
+                                        prompt={activeJob.prompt}
+                                        progress={jobStatus.progress || 0}
+                                        status={jobStatus.status}
+                                        estimatedTime={MODEL_INFO[activeJob.model]?.estimatedTime}
+                                    />
+                                </div>
+                            )}
                             {videos.map((video: AIVideo) => (
                                 <VideoCard
                                     key={video.id}
@@ -774,9 +785,9 @@ export default function VideoGeneratorPage() {
                     )}
                 </div>
 
-                {/* Generation Panel - Fixed at Bottom */}
-                <div className="flex-shrink-0 px-4 md:px-6 xl:px-8 pb-6 pt-4 border-t border-gray-800/50">
-                    <div className="max-w-4xl mx-auto space-y-4">
+                {/* Generation Panel - STICKY at Bottom */}
+                <div className="sticky bottom-[68px] md:bottom-0 z-20 bg-[#0F1115] shadow-[0_-10px_40px_rgba(15,17,21,0.8)] px-2 sm:px-4 md:px-6 xl:px-8 pb-3 pt-2 md:pb-6 md:pt-4 border-t border-gray-800/50">
+                    <div className="max-w-4xl mx-auto space-y-2 md:space-y-4">
                         {/* Model Selector */}
                         <ModelSelector
                             selectedModel={selectedModel}
@@ -871,21 +882,40 @@ export default function VideoGeneratorPage() {
                         )}
 
                         {/* Prompt Input Box */}
-                        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-                            {/* Text Input */}
-                            <textarea
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                placeholder={`Describe your ${currentConfig?.name || 'AI'} video... (e.g., 'A cinematic shot of a sunset over the ocean')`}
-                                className="w-full px-5 py-4 bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-[15px] leading-relaxed"
-                                rows={2}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey && prompt.trim() && !isGenerating) {
-                                        e.preventDefault();
-                                        handleGenerate();
-                                    }
-                                }}
-                            />
+                        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden min-w-0">
+                            {/* Text Input Row */}
+                            <div className="flex items-end gap-2 pr-2 sm:pr-3 bg-transparent w-full">
+                                <textarea
+                                    value={prompt}
+                                    onChange={(e) => setPrompt(e.target.value)}
+                                    placeholder={`Describe your ${currentConfig?.name || 'AI'} video...`}
+                                    className="flex-1 min-w-0 bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-sm sm:text-[15px] leading-relaxed min-h-[44px] sm:min-h-[56px] max-h-[140px] px-4 py-3 sm:px-5 sm:py-4"
+                                    rows={1}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey && prompt.trim() && !isGenerating) {
+                                            e.preventDefault();
+                                            handleGenerate();
+                                        }
+                                    }}
+                                />
+                                <div className="pb-2 sm:pb-3 flex-shrink-0">
+                                    <button
+                                        onClick={handleGenerate}
+                                        disabled={!prompt.trim() || isGenerating || (user?.credits ?? 0) < creditCost}
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${
+                                            prompt.trim() && !isGenerating && (user?.credits ?? 0) >= creditCost
+                                                ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-600'
+                                                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        {isGenerating ? (
+                                            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-gray-600 border-t-gray-300 rounded-full animate-spin" />
+                                        ) : (
+                                            <ArrowUpIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
 
                             {/* Negative Prompt (if supported) */}
                             {currentConfig?.supports_negative_prompt && (
@@ -900,9 +930,9 @@ export default function VideoGeneratorPage() {
                             )}
 
                             {/* Controls Bar */}
-                            <div className="flex items-center justify-between px-3 py-2 border-t border-gray-800/50">
-                                {/* Left Controls */}
-                                <div className="flex items-center gap-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 py-2 border-t border-gray-800/50 gap-y-2">
+                                {/* Left Controls - scrollable on mobile */}
+                                <div className="flex items-center gap-x-1 overflow-x-auto scrollbar-hide flex-1 min-w-0 -mx-1 px-1">
                                     {/* Duration */}
                                     <Dropdown
                                         value={duration.toString()}
@@ -951,7 +981,7 @@ export default function VideoGeneratorPage() {
                                         }`}
                                     >
                                         <ImageIcon className="w-4 h-4" />
-                                        <span>{imagePreview ? 'Change image' : 'Add image'}</span>
+                                        <span className="hidden sm:inline">{imagePreview ? 'Change image' : 'Add image'}</span>
                                     </button>
 
                                     {/* Presets Button - Next to Add Image */}
@@ -962,7 +992,7 @@ export default function VideoGeneratorPage() {
                                         }`}
                                     >
                                         <PaletteIcon className="w-4 h-4" />
-                                        <span>Presets</span>
+                                        <span className="hidden md:inline">Presets</span>
                                     </button>
 
                                     {/* Enhance Prompt Toggle */}
@@ -974,7 +1004,7 @@ export default function VideoGeneratorPage() {
                                         title="Expand short prompts with AI for better results"
                                     >
                                         <SparklesIcon className="w-4 h-4" />
-                                        <span>Enhance</span>
+                                        <span className="hidden sm:inline">Enhance</span>
                                     </button>
 
                                     <div className="w-px h-5 bg-gray-800 mx-1" />
@@ -987,36 +1017,20 @@ export default function VideoGeneratorPage() {
                                         }`}
                                     >
                                         <SettingsIcon className="w-4 h-4" />
-                                        <span>Advanced</span>
+                                        <span className="hidden sm:inline">Advanced</span>
                                     </button>
                                 </div>
 
-                                {/* Right Controls */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-end w-full sm:w-auto pt-2 sm:pt-0 border-t border-gray-800/50 sm:border-0 text-right shrink-0">
                                     {/* Credits cost */}
-                                    <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                                        <CreditIcon className="w-4 h-4" />
-                                        <span>{creditCost} credits</span>
-                                        <span className="text-gray-600">|</span>
-                                        <span>{user?.credits ?? 0} available</span>
+                                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 bg-gray-900/50 px-3 py-1.5 rounded-lg border border-gray-800">
+                                        <CreditIcon className="w-4 h-4 text-purple-400" />
+                                        <span className="text-gray-300">{creditCost} credits</span>
+                                        <span className="mx-1 opacity-40">|</span>
+                                        <span className={((user?.credits ?? 0) >= creditCost) ? 'text-green-400/80' : 'text-red-400/80'}>
+                                            {user?.credits ?? 0} bal.
+                                        </span>
                                     </div>
-
-                                    {/* Generate Button */}
-                                    <button
-                                        onClick={handleGenerate}
-                                        disabled={!prompt.trim() || isGenerating || (user?.credits ?? 0) < creditCost}
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                                            prompt.trim() && !isGenerating && (user?.credits ?? 0) >= creditCost
-                                                ? 'bg-purple-500 text-white hover:bg-purple-600'
-                                                : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                                        }`}
-                                    >
-                                        {isGenerating ? (
-                                            <div className="w-5 h-5 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
-                                        ) : (
-                                            <ArrowUpIcon className="w-5 h-5" />
-                                        )}
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1048,19 +1062,32 @@ export default function VideoGeneratorPage() {
                             autoPlay
                             className="w-full rounded-lg"
                         />
-                        <div className="flex items-center justify-between">
-                            <div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="min-w-0">
                                 <p className="text-sm text-gray-300 line-clamp-2">{selectedVideo.prompt}</p>
                                 <p className="text-xs text-gray-500 mt-1">
                                     {MODEL_INFO[selectedVideo.model]?.icon} {modelConfigs?.[selectedVideo.model]?.name || selectedVideo.model} • {selectedVideo.duration}s • {selectedVideo.aspect_ratio}
                                 </p>
                             </div>
-                            <a href={selectedVideo.url} download>
-                                <Button variant="primary" size="sm">
-                                    <DownloadIcon className="w-4 h-4 mr-1" />
-                                    Download
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => shareMedia(selectedVideo.url, 'Check out this AI Video from Reelr!')}
+                                >
+                                    <ShareIcon className="w-4 h-4 mr-1" />
+                                    Share
                                 </Button>
-                            </a>
+                                <Button 
+                                    variant="primary" 
+                                    size="sm"
+                                    onClick={() => downloadMedia(selectedVideo.url, `video-${selectedVideo.id}.mp4`)}
+                                    disabled={isDownloading}
+                                >
+                                    <DownloadIcon className="w-4 h-4 mr-1" />
+                                    {isDownloading ? 'Downloading...' : 'Download'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 )}

@@ -91,6 +91,25 @@
   /* Legacy shadow names (now lime) */
   --shadow-glow-green: var(--shadow-glow-green);
   --shadow-glow-blue: var(--shadow-glow-blue);
+
+  /* Landing Page Ported Colors */
+  --color-primary: #C8FF4D;
+  --color-primary-hover: #D5FF6A;
+  --color-primary-pressed: #B8F443;
+  --color-dark-bg: #0F1115;
+  --color-dark-surface1: #16181D;
+  --color-dark-surface2: #1C1F26;
+  --color-dark-surface3: #23262E;
+  --color-text-primary: #F2F2F2;
+  /* (Overriding text-secondary and text-muted with exact Landing Page colors) */
+  --color-text-secondary: #B5B8C2;
+  --color-text-muted: #7A7F89;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  touch-action: pan-y;
 }
 
 body {
@@ -99,7 +118,6 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 /* Utility Classes */
@@ -221,6 +239,17 @@ body {
   50% {
     filter: brightness(1.12);
   }
+}
+
+/* Smooth scroll for the whole page */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe-area bottom padding for notched phones */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Respect reduced motion preferences */

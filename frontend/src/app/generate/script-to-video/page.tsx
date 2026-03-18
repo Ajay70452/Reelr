@@ -21,6 +21,7 @@ import PresetSelectorModal from '@/components/generator/PresetSelectorModal';
 import MusicCard from '@/components/wizard/MusicCard';
 import type { AIPreset, Music } from '@/types';
 import { resolveMediaUrl } from '@/lib/api';
+import { useDropShare } from '@/hooks/useDropShare';
 
 // Image model info
 const IMAGE_MODELS = {
@@ -60,6 +61,14 @@ function TrashIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+    );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
         </svg>
     );
 }
@@ -378,6 +387,7 @@ function VideoCard({ video, onPlay, onDelete }: {
 }) {
     const thumbnailUrl = resolveMediaUrl(video.thumbnail_url);
     const videoUrl = resolveMediaUrl(video.video_url);
+    const { downloadMedia, shareMedia } = useDropShare();
 
     return (
         <div className="group relative aspect-[9/16] bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all">
@@ -400,14 +410,18 @@ function VideoCard({ video, onPlay, onDelete }: {
                 <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-300">{video.scene_count || 0} scenes</span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <a
-                            href={videoUrl}
-                            download
-                            onClick={(e) => e.stopPropagation()}
+                        <button
+                            onClick={(e) => { e.stopPropagation(); downloadMedia(videoUrl, `video-${video.id}.mp4`); }}
                             className="p-1 bg-gray-800/80 hover:bg-gray-700 rounded transition-colors"
                         >
                             <DownloadIcon className="w-3.5 h-3.5 text-gray-300" />
-                        </a>
+                        </button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); shareMedia(videoUrl, 'Check out this AI Video from Reelr!'); }}
+                            className="p-1 bg-gray-800/80 hover:bg-gray-700 rounded transition-colors"
+                        >
+                            <ShareIcon className="w-3.5 h-3.5 text-gray-300" />
+                        </button>
                         <button
                             onClick={(e) => { e.stopPropagation(); onDelete(); }}
                             className="p-1 bg-gray-800/80 hover:bg-red-900/50 rounded transition-colors"
@@ -424,6 +438,7 @@ function VideoCard({ video, onPlay, onDelete }: {
 // Main Page Component
 export default function ScriptToVideoPage() {
     const { user } = useUserStore();
+    const { downloadMedia, shareMedia, isDownloading } = useDropShare();
 
     // Form state
     const [script, setScript] = useState('');
@@ -525,12 +540,26 @@ export default function ScriptToVideoPage() {
 
     return (
         <AppLayout>
-            <div className="flex flex-col md:flex-row h-screen bg-[#0F1115] overflow-hidden pb-20 md:pb-0">
+            <div className="flex flex-col md:flex-row min-h-full bg-[#0F1115] pb-20 md:pb-0">
                 {/* LEFT PANEL: Creation Workspace (Scrollable) */}
                 <div className="flex-1 flex flex-col min-w-0">
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto">
-                        <div className="max-w-2xl mx-auto px-4 md:px-6 py-6 pb-32 space-y-8">
+                    <div className="flex-1 px-4 md:px-6 xl:px-8 pb-4">
+                        <div className="max-w-2xl mx-auto py-6 pb-32 space-y-6 md:space-y-8">
+                            
+                            {/* Mobile/Tablet Generating Overlay (only shown when hidden right panel isn't visible) */}
+                            {isGenerating && jobStatus && (
+                                <div className="md:hidden relative h-[300px] w-full rounded-2xl overflow-hidden mb-6 bg-gray-900 border border-accent/20">
+                                    <GeneratingOverlay
+                                        progress={jobStatus.progress || 0}
+                                        status={jobStatus.status}
+                                        currentStep={jobStatus.current_step}
+                                        totalScenes={jobStatus.total_scenes}
+                                        completedScenes={jobStatus.completed_scenes}
+                                        scenes={jobStatus.scenes}
+                                    />
+                                </div>
+                            )}
 
                             {/* Section 1: Header */}
                             <div className="pt-2">
@@ -754,25 +783,27 @@ Her story changed the ancient world forever.`}
                     </div>
 
                     {/* Sticky Bottom Action Bar */}
-                    <div className="sticky bottom-0 bg-black/95 backdrop-blur border-t border-gray-800 p-4">
+                    <div className="sticky bottom-[68px] md:bottom-0 bg-[#0F1115] z-20 shadow-[0_-10px_40px_rgba(15,17,21,0.8)] border-t border-gray-800 p-3 md:p-4">
                         {generationError && (
-                            <div className="max-w-2xl mx-auto mb-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-between">
-                                <p className="text-red-400 text-sm">{generationError}</p>
+                            <div className="max-w-2xl mx-auto mb-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start sm:items-center justify-between">
+                                <p className="text-red-400 text-xs sm:text-sm">{generationError}</p>
                                 <button onClick={() => setGenerationError(null)} className="text-red-400 hover:text-red-300 ml-3 text-sm">✕</button>
                             </div>
                         )}
-                        <div className="max-w-2xl mx-auto flex items-center justify-between">
-                            <div className="text-sm">
-                                <span className="text-gray-400">Estimated cost: </span>
+                        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-y-3">
+                            <div className="text-xs sm:text-sm text-gray-400 w-full sm:w-auto text-center sm:text-left bg-gray-900/50 px-3 py-2 sm:p-0 sm:bg-transparent rounded-lg sm:rounded-none">
+                                <span>Est. cost: </span>
                                 <span className="text-white font-semibold">{creditCost} credits</span>
                                 <span className="text-gray-600 mx-2">|</span>
-                                <span className="text-gray-400">{user?.credits ?? 0} available</span>
+                                <span className={((user?.credits ?? 0) >= creditCost) ? 'text-green-400/80' : 'text-red-400/80'}>
+                                    {user?.credits ?? 0} bal.
+                                </span>
                             </div>
                             <button
                                 onClick={handleGenerate}
                                 disabled={!script.trim() || isGenerating || (user?.credits ?? 0) < creditCost}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${script.trim() && !isGenerating && (user?.credits ?? 0) >= creditCost
-                                    ? 'bg-accent text-white hover:bg-accent/90'
+                                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 sm:py-3 rounded-xl font-semibold text-base sm:text-sm transition-all ${script.trim() && !isGenerating && (user?.credits ?? 0) >= creditCost
+                                    ? 'bg-accent text-white shadow-lg shadow-accent/20 hover:bg-accent/90'
                                     : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                                     }`}
                             >
@@ -858,19 +889,32 @@ Her story changed the ancient world forever.`}
                             autoPlay
                             className="w-full rounded-lg"
                         />
-                        <div className="flex items-center justify-between">
-                            <div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="min-w-0">
                                 <p className="text-sm text-gray-300 line-clamp-2">{selectedVideo.script_preview}</p>
                                 <p className="text-xs text-gray-500 mt-1">
                                     {selectedVideo.scene_count} scenes - {selectedVideo.duration}s - {selectedVideo.aspect_ratio}
                                 </p>
                             </div>
-                            <a href={resolveMediaUrl(selectedVideo.video_url)} download>
-                                <Button variant="primary" size="sm">
-                                    <DownloadIcon className="w-4 h-4 mr-1" />
-                                    Download
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => shareMedia(resolveMediaUrl(selectedVideo.video_url), 'Check out this AI Video from Reelr!')}
+                                >
+                                    <ShareIcon className="w-4 h-4 mr-1" />
+                                    Share
                                 </Button>
-                            </a>
+                                <Button 
+                                    variant="primary" 
+                                    size="sm"
+                                    onClick={() => downloadMedia(resolveMediaUrl(selectedVideo.video_url), `video-${selectedVideo.id}.mp4`)}
+                                    disabled={isDownloading}
+                                >
+                                    <DownloadIcon className="w-4 h-4 mr-1" />
+                                    {isDownloading ? 'Downloading...' : 'Download'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 )}

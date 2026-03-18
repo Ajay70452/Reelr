@@ -9,6 +9,7 @@ import { useGenerateImage, useUserImages, useDeleteImage, useImageJob, useUserCr
 import PresetSelectorModal from '@/components/generator/PresetSelectorModal';
 import { useToastStore } from '@/store/toastStore';
 import type { AIPreset } from '@/types';
+import { useDropShare } from '@/hooks/useDropShare';
 
 // Model options (from docs/image_gen.md)
 const MODELS = [
@@ -48,6 +49,14 @@ function DownloadIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+    );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
         </svg>
     );
 }
@@ -195,6 +204,8 @@ function ImageCard({ image, onPreview, onDelete, onReusePrompt }: {
     onDelete: () => void;
     onReusePrompt: () => void;
 }) {
+    const { downloadMedia, shareMedia } = useDropShare();
+
     return (
         <div className="group relative aspect-square bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300">
             <img
@@ -216,15 +227,20 @@ function ImageCard({ image, onPreview, onDelete, onReusePrompt }: {
                         >
                             <RefreshIcon className="w-4 h-4 text-gray-300" />
                         </button>
-                        <a
-                            href={image.url}
-                            download
-                            onClick={(e) => e.stopPropagation()}
+                        <button
+                            onClick={(e) => { e.stopPropagation(); downloadMedia(image.url, `image-${image.id}.jpg`); }}
                             className="p-1.5 bg-gray-800/80 hover:bg-gray-700 rounded-lg transition-colors"
                             title="Download"
                         >
                             <DownloadIcon className="w-4 h-4 text-gray-300" />
-                        </a>
+                        </button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); shareMedia(image.url, 'Check out this AI Image from Reelr!'); }}
+                            className="p-1.5 bg-gray-800/80 hover:bg-gray-700 rounded-lg transition-colors"
+                            title="Share"
+                        >
+                            <ShareIcon className="w-4 h-4 text-gray-300" />
+                        </button>
                         <button
                             onClick={(e) => { e.stopPropagation(); onDelete(); }}
                             className="p-1.5 bg-gray-800/80 hover:bg-red-900/50 rounded-lg transition-colors"
@@ -300,6 +316,7 @@ interface ActiveJob {
 export default function ImageGeneratorPage() {
     const { user, updateCredits } = useUserStore();
     const addToast = useToastStore((s) => s.addToast);
+    const { downloadMedia, shareMedia, isDownloading } = useDropShare();
 
     // Form state
     const [prompt, setPrompt] = useState('');
@@ -412,7 +429,7 @@ export default function ImageGeneratorPage() {
 
     return (
         <AppLayout>
-            <div className="flex flex-col h-screen bg-[#0F1115] pb-20 md:pb-0">
+            <div className="flex flex-col min-h-full bg-[#0F1115] pb-20 md:pb-0">
                 {/* Page Header */}
                 <header className="flex-shrink-0 px-4 md:px-6 xl:px-8 py-5">
                     <h1 className="text-xl font-semibold text-white">AI Image Generator</h1>
@@ -420,7 +437,7 @@ export default function ImageGeneratorPage() {
                 </header>
 
                 {/* Main Content Area - Gallery */}
-                <div className="flex-1 overflow-y-auto px-4 md:px-6 xl:px-8">
+                <div className="flex-1 px-4 md:px-6 xl:px-8 pb-4">
                     {imagesLoading && !activeJob ? (
                         <div className="flex items-center justify-center h-full min-h-[400px]">
                             <div className="w-8 h-8 border-2 border-gray-700 border-t-white rounded-full animate-spin" />
@@ -428,7 +445,7 @@ export default function ImageGeneratorPage() {
                     ) : images.length === 0 && !activeJob ? (
                         <EmptyState />
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-8">
+                        <div className={`gap-4 pb-8 ${images.length === 0 ? 'flex flex-col h-full' : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
                             {/* Show generating card first if there's an active job */}
                             {activeJob && (
                                 <GeneratingCard
@@ -450,8 +467,8 @@ export default function ImageGeneratorPage() {
                     )}
                 </div>
 
-                {/* Prompt Input Box - Fixed at Bottom */}
-                <div className="flex-shrink-0 px-4 md:px-6 xl:px-8 pb-8 pt-4">
+                {/* Prompt Input Box - Sticky at Bottom */}
+                <div className="sticky bottom-[68px] md:bottom-0 z-20 bg-[#0F1115] shadow-[0_-10px_40px_rgba(15,17,21,0.8)] px-2 sm:px-4 md:px-6 xl:px-8 pb-3 pt-2 md:pb-8 md:pt-4 border-t border-gray-800/50">
                     <div className="max-w-4xl mx-auto">
                         {/* Selected Preset Chip (above prompt box) */}
                         {selectedPreset && (
@@ -470,26 +487,45 @@ export default function ImageGeneratorPage() {
                         )}
 
                         <div className="bg-gray-900 border border-gray-800 rounded-2xl">
-                            {/* Text Input */}
-                            <textarea
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                placeholder="Describe the image you want to create... (e.g., 'A majestic lion standing on a cliff at sunset, cinematic lighting, 8k quality')"
-                                className="w-full px-5 py-4 bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-[15px] leading-relaxed"
-                                rows={2}
-                                maxLength={MAX_PROMPT_LENGTH}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey && prompt.trim()) {
-                                        e.preventDefault();
-                                        handleGenerate();
-                                    }
-                                }}
-                            />
-
+                            {/* Text Input Row */}
+                            <div className="flex items-end gap-2 pr-2 sm:pr-3 bg-transparent">
+                                <textarea
+                                    value={prompt}
+                                    onChange={(e) => setPrompt(e.target.value)}
+                                    placeholder="Describe the image you want to create..."
+                                    className="flex-1 bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-sm sm:text-[15px] leading-relaxed min-h-[44px] sm:min-h-[56px] max-h-[140px] px-4 py-3 sm:px-5 sm:py-4"
+                                    rows={1}
+                                    maxLength={MAX_PROMPT_LENGTH}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey && prompt.trim()) {
+                                            e.preventDefault();
+                                            handleGenerate();
+                                        }
+                                    }}
+                                />
+                                <div className="pb-2 sm:pb-3 flex-shrink-0">
+                                    <button
+                                        onClick={handleGenerate}
+                                        disabled={!prompt.trim() || !!activeJob || generateImage.isPending}
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${
+                                            prompt.trim() && !activeJob && !generateImage.isPending
+                                                ? 'bg-white text-black shadow-lg shadow-white/20 hover:bg-gray-200'
+                                                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        {activeJob || generateImage.isPending ? (
+                                            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-gray-600 border-t-gray-300 rounded-full animate-spin" />
+                                        ) : (
+                                            <ArrowUpIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                            
                             {/* Controls Bar */}
-                            <div className="flex items-center justify-between px-3 py-2 border-t border-gray-800/50">
-                                {/* Left Controls */}
-                                <div className="flex items-center gap-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 py-2 border-t border-gray-800/50 gap-y-2">
+                                {/* Left Controls - scrollable on mobile */}
+                                <div className="flex items-center gap-x-1 overflow-x-auto scrollbar-hide flex-1 min-w-0 -mx-1 px-1">
                                     {/* Model Selector */}
                                     <Dropdown
                                         value={selectedModel}
@@ -545,47 +581,26 @@ export default function ImageGeneratorPage() {
                                         }`}
                                     >
                                         <AdjustmentsIcon className="w-4 h-4" />
-                                        <span>Advanced</span>
-                                        <ChevronDownIcon className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+                                        <span className="hidden sm:inline">Advanced</span>
                                     </button>
                                 </div>
 
                                 {/* Right Controls */}
-                                <div className="flex items-center gap-3">
-                                    {/* Character count */}
-                                    <span className="text-xs text-gray-600">
-                                        {prompt.length}/{MAX_PROMPT_LENGTH}
-                                    </span>
-
-                                    {/* Credits */}
-                                    <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                                        <CreditIcon className="w-4 h-4" />
-                                        <span>{user?.credits ?? 0}</span>
+                                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto mt-1 sm:mt-0 pt-2 sm:pt-0 border-t border-gray-800/50 sm:border-0 text-right">
+                                    {/* Credits cost */}
+                                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 bg-gray-900/50 px-3 py-1.5 rounded-lg border border-gray-800">
+                                        <span className="text-gray-400">{prompt.length}/{MAX_PROMPT_LENGTH}</span>
+                                        <span className="mx-1 opacity-40">|</span>
+                                        <CreditIcon className="w-4 h-4 text-accent" />
+                                        <span className="text-green-400/80">{user?.credits ?? 0} bal.</span>
                                     </div>
-
-                                    {/* Generate Button */}
-                                    <button
-                                        onClick={handleGenerate}
-                                        disabled={!prompt.trim() || !!activeJob || generateImage.isPending}
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                                            prompt.trim() && !activeJob && !generateImage.isPending
-                                                ? 'bg-white text-black hover:bg-gray-200'
-                                                : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                                        }`}
-                                    >
-                                        {activeJob || generateImage.isPending ? (
-                                            <div className="w-5 h-5 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
-                                        ) : (
-                                            <ArrowUpIcon className="w-5 h-5" />
-                                        )}
-                                    </button>
                                 </div>
                             </div>
 
                             {/* Advanced Options Panel */}
                             {showAdvanced && (
                                 <div className="px-5 py-4 border-t border-gray-800/50 bg-gray-900/50">
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         {/* Seed */}
                                         <div>
                                             <label className="block text-xs text-gray-500 mb-1.5">Seed (optional)</label>
@@ -666,12 +681,23 @@ export default function ImageGeneratorPage() {
                                     <RefreshIcon className="w-4 h-4 mr-1" />
                                     Reuse
                                 </Button>
-                                <a href={selectedImage.url} download>
-                                    <Button variant="primary" size="sm">
-                                        <DownloadIcon className="w-4 h-4 mr-1" />
-                                        Download
-                                    </Button>
-                                </a>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => shareMedia(selectedImage.url, 'Check out this AI Image from Reelr!')}
+                                >
+                                    <ShareIcon className="w-4 h-4 mr-1" />
+                                    Share
+                                </Button>
+                                <Button 
+                                    variant="primary" 
+                                    size="sm" 
+                                    onClick={() => downloadMedia(selectedImage.url, `image-${selectedImage.id}.jpg`)}
+                                    disabled={isDownloading}
+                                >
+                                    <DownloadIcon className="w-4 h-4 mr-1" />
+                                    {isDownloading ? 'Downloading...' : 'Download'}
+                                </Button>
                             </div>
                         </div>
                     </div>

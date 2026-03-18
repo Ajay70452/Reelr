@@ -158,7 +158,7 @@ export default function LibraryPage() {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-[#0B0D12] py-6 md:py-8 xl:py-10 pb-20 md:pb-8">
+            <div className="min-h-screen bg-[#0B0D12] py-6 md:py-8 xl:py-10 pb-24 md:pb-8">
                 <div className="container mx-auto px-4 md:px-6 xl:px-8 max-w-7xl">
 
                     {/* Header */}
@@ -168,7 +168,7 @@ export default function LibraryPage() {
                             <p className="text-[#A1A8B8] text-sm mt-1">All your generated videos in one place</p>
                         </div>
 
-                        <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                             {/* Search */}
                             <div className="relative flex-1 md:w-64">
                                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6F7688]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
