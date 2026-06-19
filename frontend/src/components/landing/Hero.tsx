@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import SyncedHeroVideos from './SyncedHeroVideos'
 
 export default function Hero() {
   return (
@@ -44,38 +45,7 @@ export default function Hero() {
           </div>
 
           <div className="relative">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <div className="relative aspect-[4/5] bg-dark-surface2 overflow-hidden border border-dark-surface3">
-                <video
-                  src="/videos/hero-2.mp4"
-                  aria-label="Reference trend video"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                <div className="absolute left-3 top-3 px-3 py-1 bg-dark-bg/80 text-xs font-bold text-primary uppercase tracking-wider">
-                  Trend
-                </div>
-              </div>
-              <div className="relative aspect-[4/5] bg-dark-surface2 overflow-hidden border border-primary shadow-glow-lime">
-                <video
-                  src="/videos/hero-1.mp4"
-                  aria-label="Generated trend video"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                <div className="absolute left-3 top-3 px-3 py-1 bg-primary text-xs font-bold text-dark-bg uppercase tracking-wider">
-                  Yours
-                </div>
-              </div>
-            </div>
+            <SyncedHeroVideos />
 
             <div className="mt-4 bg-dark-surface2 border border-dark-surface3 p-4">
               <div className="flex items-center justify-between gap-4">
