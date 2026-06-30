@@ -10,6 +10,7 @@ export default function Header() {
     const { user, logout } = useUserStore();
 
     const isActive = (path: string) => pathname === path;
+    const isLandingV2 = pathname === '/v2';
     const isDashboardRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/library') || pathname.startsWith('/trending') || pathname.startsWith('/generate') || pathname.startsWith('/automations');
 
     return (
@@ -84,7 +85,7 @@ export default function Header() {
                             </Link>
                             <Link href="/auth/signup">
                                 <Button variant="primary" size="sm">
-                                    Get Started
+                                    {isLandingV2 ? 'Get Started for Free' : 'Get Started'}
                                 </Button>
                             </Link>
                         </>
