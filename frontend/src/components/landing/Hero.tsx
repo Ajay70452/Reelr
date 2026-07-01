@@ -24,15 +24,9 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <Link href="/trending">
                 <button className="w-full sm:w-auto px-9 py-4 bg-primary text-dark-bg font-bold rounded-none hover:bg-primary-hover transition-colors text-lg">
-                  Try Now
+                  Get Started For Free
                 </button>
               </Link>
-              <a
-                href="#how-it-works"
-                className="w-full sm:w-auto px-9 py-4 border border-dark-surface3 text-text-primary font-bold rounded-none hover:border-primary transition-colors text-lg text-center"
-              >
-                See How
-              </a>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-[0.18em] text-text-muted">

@@ -176,7 +176,7 @@ export default function Pricing() {
                     : 'bg-dark-surface3 text-text-primary hover:bg-dark-surface1'
                 }`}
               >
-                Get started
+                Get Started For Free
               </button>
             </div>
           ))}

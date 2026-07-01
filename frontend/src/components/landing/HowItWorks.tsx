@@ -66,7 +66,7 @@ export default function HowItWorks() {
         <div className="text-center mt-12">
           <Link href="/trending">
             <button className="px-9 py-4 bg-primary text-dark-bg font-bold rounded-none hover:bg-primary-hover transition-colors text-lg">
-              Try Now
+              Get Started For Free
             </button>
           </Link>
         </div>
